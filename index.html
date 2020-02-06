@@ -136,6 +136,536 @@
         
         <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
             <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-02-06T08:19:42.000Z">2020-02-06</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    22 分钟 读完 (大约 3290 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                <a class="has-link-black-ter" href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
+            
+        </h1>
+        <div class="content">
+            <h1 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h1><p>利用纯细胞类型的参考转录组数据集，对单细胞RNA测序数据进行无偏倚的细胞类型识别，独立推断每个单细胞的细胞来源。</p>
+<h1 id="参考注释库"><a href="#参考注释库" class="headerlink" title="参考注释库"></a>参考注释库</h1><h3 id="小鼠"><a href="#小鼠" class="headerlink" title="小鼠"></a>小鼠</h3><ul>
+<li><code>[[1]]</code> <strong>Immunological Genome Project (ImmGen)</strong></li>
+</ul>
+<ul>
+<li><code>[[2]]</code> A dataset of 358 mouse RNA-seq samples annotated to 28 cell types. **(对小鼠大脑相关的样本可能很有用）</li>
+</ul>
+<h3 id="人类"><a href="#人类" class="headerlink" title="人类"></a>人类</h3><ul>
+<li><code>[[1]]</code>: <strong>Human Primary Cell Atlas (HPCA）</strong>：个人觉得这个感觉对免疫细胞的注释会稍微准确一些</li>
+<li><code>[[2]]</code>: <strong>Blueprint+Encode</strong></li>
+</ul>
+<p>对于特定的应用，可以使用更小的数据集(有关巨噬细胞的例子，请参阅主要的论文)。SingleR可以灵活地与任何参考数据集一起使用。</p>
+<h1 id="SingleR以两种模式运行"><a href="#SingleR以两种模式运行" class="headerlink" title="SingleR以两种模式运行"></a>SingleR以两种模式运行</h1><ul>
+<li>(1) Single-cell:对每个单细胞分别执行注释。</li>
+<li>(2) Cluster:在先前定义的Cluster上执行注释，其中Cluster的表达情况是Cluster中所有细胞的总的表达情况。此外，SingleR将细胞/Cluster注释为所有参考细胞类型，或者将参考细胞类型组合为主要细胞类型。</li>
+</ul>
+<h1 id="两种Variable-genes模式"><a href="#两种Variable-genes模式" class="headerlink" title="两种Variable genes模式"></a>两种Variable genes模式</h1><p>SingleR支持在参考数据集中选择可变基因的模式。</p>
+<ol>
+<li>“sd”—参考数据集中所有样本的标准偏差超过阈值的基因。我们选择的阈值是3000-4000个基因。</li>
+<li>‘ de ‘ -在细胞类型中具有较高中位表达的前N个基因。<br>我们使用一个变化的N，这取决于分析中使用的细胞类型的数量。更多细节可以在SingleR代码中找到。（一般都都用这个模式）</li>
+</ol>
+<h1 id="创建SingleR对象"><a href="#创建SingleR对象" class="headerlink" title="创建SingleR对象"></a>创建SingleR对象</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Generating SingleR+Seurat object</span><br><span class="line">singler &#x3D; CreateSinglerSeuratObject(counts &#x3D; &#39;GSE74923_series_matrix.txt&#39;,</span><br><span class="line">annot &#x3D; &#39;GSE74923_types.txt&#39;, project.name &#x3D; &#39;GSE74923&#39;, min.genes &#x3D; 500,</span><br><span class="line">min.cells &#x3D; 2, npca &#x3D; 10, regress.out &#x3D;&#39;nUMI&#39;, technology&#x3D; &#39;C1&#39;, species &#x3D; &#39;Mouse&#39;,</span><br><span class="line">citation &#x3D; &#39;Kimmerling et al. 2016&#39;,reduce.file.size &#x3D; T, variable.genes &#x3D; &#39;de&#39;</span><br><span class="line">normalize.gene.length &#x3D; T)</span><br></pre></td></tr></table></figure>
+<p>参数：</p>
+<ul>
+<li><p>seurat：Seurat对象(仅当使用相关函数时)。使用reduce.file.size开关将从对象中删除原始数据。</p>
+</li>
+<li><p>另一个列表，带有针对每个引用数据集的singler注释的数据。列表中的每个元素都是一个包含以下字段的列表</p>
+<ul>
+<li>SingleR.single: 所有细胞类型的结果列表</li>
+<li>SingleR.single.main：只针对主要细胞类型的 single cells 的结果列表。</li>
+<li>SingleR.cluster：按cluster列出所有细胞类型的结果。</li>
+<li>SingleR.cluster.main：仅针对主要细胞类型按cluster划分的结果列表。</li>
+</ul>
+</li>
+<li><p>上述每个元素都包含以下字段(以及其他字段：</p>
+<ul>
+<li>scores ：汇总分数的矩阵。行是每个细胞(或cluster)，列是每个细胞类型。<br>cell type.</li>
+<li>labels ： 微调的注释标签。</li>
+<li>labels1： 带注释的标签，无需微调(一轮后).</li>
+</ul>
+</li>
+<li><p>signatures：带有ssGSEA分数的数据框，用于预先指定的签名。</p>
+</li>
+<li><p>meta.data：包含项目名称、原始标识和坐标的列表。</p>
+</li>
+</ul>
+<p>或者不依赖Seurat对象直接创建</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># Generating SingleR object without Seurat. To use this SingleR visualization functions</span><br><span class="line"># it is necessary to add coordinates for each cell in the field &#39;singler$meta.data$xy&#39;</span><br><span class="line">singler &#x3D; CreateSinglerObject(counts &#x3D; &#39;GSE74923_series_matrix.txt&#39;,</span><br><span class="line">annot &#x3D; &#39;GSE74923_types.txt&#39;, project.name &#x3D; &#39;GSE74923&#39;, min.genes &#x3D; 500,</span><br><span class="line">technology&#x3D; &#39;C1&#39;, species &#x3D; &#39;Mouse&#39;,</span><br><span class="line">citation &#x3D; &#39;Kimmerling et al. 2016&#39;,reduce.file.size &#x3D; T, variable.genes &#x3D; &#39;de&#39;</span><br><span class="line">normalize.gene.length &#x3D; T)</span><br></pre></td></tr></table></figure>
+
+<p>实际上操作中，我还是比较少用上面这两种方法，我一般做法都是构建好输入的变量，然后传给函数。</p>
+<h1 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h1><h3 id="例子1"><a href="#例子1" class="headerlink" title="例子1"></a>例子1</h3><p>首先，我们来看看t-SNE图，这是由 original identities 所决定的:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># singler$singler[[1]] is the annotations obtained by using ImmGen dataset as reference.</span><br><span class="line"># singler$singler[[2]] is based on the Mouse-RNAseq datasets.</span><br><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[1]]$SingleR.single,</span><br><span class="line">singler$meta.data$xy, do.label &#x3D; FALSE, do.letters &#x3D; F,</span><br><span class="line">labels&#x3D;singler$meta.data$orig.ident,label.size &#x3D; 4,</span><br><span class="line">dot.size &#x3D; 3)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-9a07c6ed6834a025.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="a"><br>然后，我们可以通过汇总分数的热图观察分类。这些分数是在微调之前。我们可以看到这个热图的主要细胞类型:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SingleR.DrawHeatmap(singler$singler[[1]]$SingleR.single.main, top.n &#x3D; Inf,</span><br><span class="line">clusters &#x3D; singler$meta.data$orig.ident)</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-e83ae7e34de8db24.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="b"><br>或按着所有细胞类型(显示前50细胞类型):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SingleR.DrawHeatmap(singler$singler[[1]]$SingleR.single, top.n &#x3D; 50,</span><br><span class="line">clusters &#x3D; singler$meta.data$orig.ident)</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-5935ff0ea90da3bd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="c"><br>可见，L1210细胞被强分为3种类型的B细胞祖细胞。我们可以看到CD8细胞主要与效应CD8+ T细胞的特异性激活相关。有趣的是，有一种细胞似乎同时与pro B细胞和CD8+ T细胞相关，这表明这是一个双重态</p>
+<p>这个heatmap的另一个有趣的应用是能够聚集细胞，不是通过它们的基因表达谱，而是通过它们与数据库中所有细胞类型的相似性。</p>
+<p><strong>注意</strong>：这个视图可能会产生误导，因为每个列都被规范化为0到1之间的分数(这也取决于视图中包含的细胞类型)。因此，单个细胞可能与多种细胞类型的相关性较低，而且它们都不是精确的细胞类型，但在热图中它们都是红色的。没有标准化的数据看起来像这样:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SingleR.DrawHeatmap(singler$singler[[1]]$SingleR.single,top.n &#x3D; 50,</span><br><span class="line">normalize &#x3D; F,clusters &#x3D; singler$meta.data$orig.ident)</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-6732f9c69dd4ad48.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="d"><br>接下来，我们可以使用微调标签为t-SNE图上色:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[1]]$SingleR.single,</span><br><span class="line">singler$meta.data$xy,do.label&#x3D;FALSE,</span><br><span class="line">do.letters &#x3D; F,labels &#x3D; singler$singler[[1]]$SingleR.single$labels,</span><br><span class="line">label.size &#x3D; 4, dot.size &#x3D; 3)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>其中参考数据集选择依靠的是<code>[[数字]]</code></p>
+</blockquote>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-e730b7a720de0cb7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="e"><br>我们可以看到SingleR正确地将所有L1210注释为B细胞的类型，几乎完全是B细胞的祖细胞。另一方面，所有CD8细胞都被正确注释为CD8+ t细胞。</p>
+<p>重要的是要记住SingleR可以选择253种类型，但是它正确地<strong>选择了最相关的细胞类型</strong>。有趣的是，tSNE图错误地将细胞定位在错误的簇中，但是SingleR没有受到影响。</p>
+<p>最后，相对于原来的identities,我们也可以把标签看作是一个表:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kable(table(singler$singler[[1]]$SingleR.single$labels,singler$meta.data$orig.ident))</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-0bec11ee30556982.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="f"></p>
+<h3 id="例子2"><a href="#例子2" class="headerlink" title="例子2"></a>例子2</h3><p>使用与上述相同的filters运行Seurat产生以下t-SNE图:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[1]]$SingleR.single,</span><br><span class="line">  singler$meta.data$xy, do.label &#x3D; FALSE,</span><br><span class="line">  do.letters &#x3D; F,labels &#x3D; singler$meta.data$orig.ident,</span><br><span class="line">  dot.size &#x3D; 1.5)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-6590ccec945bf256.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="g"><br>以及SingleR煮注释(主要细胞类型):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[1]]$SingleR.single.main,</span><br><span class="line">singler$meta.data$xy, do.label &#x3D; FALSE,</span><br><span class="line">do.letters &#x3D; F, dot.size &#x3D; 2)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-70efd3978505a4f0.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="h"><br>SingleR将左侧全部映射为巨噬细胞，右上部分映射为单核细胞，右下部分映射为树突状细胞。</p>
+<p>再看看表格</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kable(table(singler$meta.data$orig.ident,singler$singler[[1]]$SingleR.single.main$labels))</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-c208adedf8c1d3fa.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="i"><br>我们选择每种细胞类型的前50个差异表达基因，并给出它们在单个细胞中的表达热点图:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">gse62631.de &lt;- read.table(file.path(path,&#39;GSE62361_DE.txt&#39;),</span><br><span class="line">header&#x3D;TRUE, sep&#x3D;&quot;\t&quot;, row.names&#x3D;1, as.is&#x3D;TRUE)</span><br><span class="line">bmdc.genes &#x3D; gse62631.de[intersect(rownames(gse62631.de),</span><br><span class="line">rownames(singler$seurat@data)),&#39;Group&#39;,drop&#x3D;F]</span><br><span class="line">d &#x3D; t(scale(t(as.matrix(singler$seurat@data[rownames(bmdc.genes),]))))</span><br><span class="line">d[d&gt;2]&#x3D;2;d[d&lt; -2]&#x3D;-2</span><br><span class="line">annotation_col &#x3D; data.frame(Annotation&#x3D;singler$singler[[1]]$SingleR.single.main$labels)</span><br><span class="line">pheatmap(d[order(bmdc.genes$Group),</span><br><span class="line">order(singler$singler[[1]]$SingleR.single.main$labels)],</span><br><span class="line">cluster_cols &#x3D; F,cluster_rows &#x3D; F,clustering_method&#x3D;&#39;ward.D&#39;,</span><br><span class="line">border_color &#x3D; NA,</span><br><span class="line">annotation_col&#x3D;annotation_col,</span><br><span class="line">annotation_row &#x3D; bmdc.genes,show_colnames&#x3D;F,show_rownames&#x3D;F)</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-997c79718691e77f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="j"></p>
+<p>我们可以看到，SingleR正确地识别了树突状细胞和巨噬细胞。有趣的是，标记为单核细胞的细胞似乎同时含有GM-Macs和GM-DCs的标记，这表明这些细胞是早期的祖细胞，尚未与DC或巨噬细胞谱系结合( have not yet committed to the DC or Macrophage lineage)</p>
+<h3 id="例子3"><a href="#例子3" class="headerlink" title="例子3"></a>例子3</h3><p>我们还将SingleR应用于人类数据集。利用10X平台从分选的免疫和细胞系群体中产生了&gt;100K单细胞。我们从<a href="https://support.10xgenomics获得该数据。">https://support.10xgenomics获得该数据。</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[1]]$SingleR.single,</span><br><span class="line">singler$meta.data$xy,do.label &#x3D; FALSE,</span><br><span class="line">do.letters &#x3D; F,labels &#x3D; singler$meta.data$orig.ident,</span><br><span class="line">dot.size &#x3D; 2)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-1e4e8d4d08ac3c3d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="k"></p>
+<p>tSNE图可以区分大多数细胞类型，但是 T-cells子集都是难以区分的的。</p>
+<p>我们首先看看Seurat的聚类信息:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[1]]$SingleR.single,</span><br><span class="line">singler$meta.data$xy,do.label &#x3D; T,</span><br><span class="line">do.letters &#x3D; F,labels&#x3D;singler$seurat@ident,</span><br><span class="line">dot.size &#x3D; 2,label.size &#x3D; 4)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-4bd8294bb0386fca.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="l"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kable(table(singler$meta.data$orig.ident,singler$seurat@ident))</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-473ef097feaf135b.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="m"><br>我们可以看到Seurat的表现相对较好;然而，regulatory T-cells完全溶解（dissolved）在memory T-cells的cluster中。</p>
+<p>SingleR使用Blueprint+ENCODE (BE)作为参考，在微调之前产生以下注释:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"># Note the use of the second tiem in the the singler$singler list to use the Blueprint+ENCODE reference.</span><br><span class="line"># use singler$singler[[i]]$about for meta-data on the reference.</span><br><span class="line">SingleR.DrawHeatmap(singler$singler[[2]]$SingleR.single,top.n&#x3D;Inf,</span><br><span class="line">clusters &#x3D; singler$meta.data$orig.ident)</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-a4d1ad9709069786.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="n"><br>我们可以看到，在微调之前， T-cells 状态之间有很强的模糊，这是无法区分的。<br>然而，通过微调，我们得到以下注释:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[2]]$SingleR.single,</span><br><span class="line">singler$meta.data$xy,do.label&#x3D;FALSE,</span><br><span class="line">do.letters &#x3D;F,labels&#x3D;singler$singler[[2]]$SingleR.single$labels,</span><br><span class="line">dot.size &#x3D; 1.5, font.size &#x3D; 6)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-13a11f27507b3b2a.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="o"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">k &#x3D; kable(table(singler$singler[[2]]$SingleR.single$labels,</span><br><span class="line">singler$meta.data$orig.ident), &quot;latex&quot;)</span><br><span class="line">kable_styling(k,font_size&#x3D;6,bootstrap_options &#x3D; &quot;striped&quot;,</span><br><span class="line">full_width &#x3D; F)</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-56f8590e5886e937.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="p"><br>通过观察颜色我们可以看到,CD4+ T-cell cluster大致可以分为4种状态,从在底部(绿色)的naive CD4+ T-cells,位于中央的记忆和记忆效应 CD4+ T-cells(紫色和橙色),以及在顶部(粉红色)的 Tregs</p>
+<p>虽然它不是完美的，但它为我们提供了细胞状态的更细粒度的视图，而不需要检查许多可能根本不在数据中的markers，因此其解释（interpretation）有时令人困惑:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">df &#x3D; data.frame(x&#x3D;singler$meta.data$xy[,1],</span><br><span class="line">y&#x3D;singler$meta.data$xy[,2],</span><br><span class="line">t(as.matrix(singler$seurat@data[c(&#39;CD3E&#39;,&#39;CD4&#39;,&#39;CD8A&#39;,</span><br><span class="line">&#39;CCR7&#39;,&#39;GZMA&#39;,&#39;GNLY&#39;,&#39;MS4A1&#39;,&#39;CD14&#39;,&#39;CD34&#39;),])))</span><br><span class="line">df &#x3D; melt(df,id.vars &#x3D; c(&#39;x&#39;,&#39;y&#39;))</span><br><span class="line">ggplot(df,aes(x&#x3D;x,y&#x3D;y,color&#x3D;value)) +</span><br><span class="line">geom_point(size&#x3D;0.3)+scale_color_gradient(low&#x3D;&quot;gray&quot;, high&#x3D;&quot;blue&quot;) +</span><br><span class="line">facet_wrap(~variable,ncol&#x3D;3) +theme_classic()+xlab(&#39;&#39;)+ylab(&#39;&#39;)</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-a34f4d83af8e4ad4.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="q"><br>有趣的是，SingleR提出了一个关于b细胞群的更细致的观点，把它分成naive和 memory<br>B-cells。</p>
+<p>我们可以看到，SingleR在它的 calls 中是相当令人信服的，给予这些细胞较低的单核细胞评分。使用罕见细胞类型的标记(至少在单核细胞分类的细胞中)是有问题的，因为基于标记的分析侧重于cluster而不是单个细胞。</p>
+<p>有趣的是，在t-SNE图中，我们看到两个不同的单核细胞簇，显示了使用SingleR聚类的能力。</p>
+<h3 id="例子4"><a href="#例子4" class="headerlink" title="例子4"></a>例子4</h3><p>小鼠器官异质性</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">out &#x3D; SingleR.PlotTsne(singler$singler[[1]]$SingleR.single.main,</span><br><span class="line">singler$meta.data$xy,do.label&#x3D;FALSE,</span><br><span class="line">do.letters &#x3D;F,labels&#x3D;singler$singler[[1]]$SingleR.single.main$labels,</span><br><span class="line">dot.size &#x3D; 1, font.size &#x3D; 8)</span><br><span class="line">out$p</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-cbf1b9aa1b50575c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="r"><br>我们可以看到，SingleR能够解决细胞的异质性，并允许一个快速和无偏倚的方法来进一步探索该器官的细胞异质性。</p>
+<h1 id="SingleR-网页版工具"><a href="#SingleR-网页版工具" class="headerlink" title="SingleR 网页版工具"></a>SingleR 网页版工具</h1><ul>
+<li>SingleR web工具包含50个公共可用的scRNA-seq数据集。</li>
+<li>所有数据都使用上述工具进行了重新处理，而web工具允许用户立即访问这些数据并对发布的单细胞数据进行进一步的挖掘。</li>
+<li>此外，我们邀请用户上传他们自己的scRNA-seq数据，这些数据将在我们的服务器上进行分析，并将处理一个SingleR对象，然后将其上传并在网站上使用(私下里，只有拥有该对象的用户才能查看它)。更多信息请访问<a href="http://comphealth.ucsf.edu/SingleR。">http://comphealth.ucsf.edu/SingleR。</a></li>
+</ul>
+<blockquote>
+<p>新版的SingleR的<code>CreateSinglerObject()</code>改为<code>SingleR(）</code>,用法大体相同，而且多了几个可以下载数据集的函数。</p>
+</blockquote>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1><ul>
+<li><a href="https://www.biorxiv.org/content/biorxiv/suppl/2018/03/19/284604.DC1/284604-2.pdf">https://www.biorxiv.org/content/biorxiv/suppl/2018/03/19/284604.DC1/284604-2.pdf</a></li>
+</ul>
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    
+<div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-02-06T08:17:54.000Z">2020-02-06</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    39 分钟 读完 (大约 5777 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                <a class="has-link-black-ter" href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
+            
+        </h1>
+        <div class="content">
+            <blockquote>
+<p>*<a href="https://bioconductor.org/packages/3.11/SingleR">SingleR</a>*是用于单细胞RNA测序（scRNAseq）数据的自动注释方法</p>
+</blockquote>
+<h1 id="一、内置数据集下载与加载"><a href="#一、内置数据集下载与加载" class="headerlink" title="一、内置数据集下载与加载"></a>一、内置数据集下载与加载</h1><blockquote>
+<p>用函数下载参考数据集，并返回SummarizedExperiment对象，具有“ logcounts” assay，其中包含对数标准化的表达值以及colData中的细胞类型标签。</p>
+</blockquote>
+<h2 id="人类参考集"><a href="#人类参考集" class="headerlink" title="人类参考集"></a>人类参考集</h2><ol>
+<li><p>从Blueprint和ENCODE获取人类bulk RNA-seq数据。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">BlueprintEncodeData(rm.NA &#x3D; c(&quot;rows&quot;, &quot;cols&quot;, &quot;both&quot;, &quot;none&quot;))</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li><strong>rm.NA</strong>：字符串型，指定应如何处理缺失值。 “rows”将删除具有至少一个缺失值的基因，“ cols”将删除具有至少一个缺失值的样本，“both”将删除任何具有至少一个缺失值的基因或样本，而“none”将不执行任何 去除。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>从免疫细胞表达数据库（DICE）下载并缓存已分类细胞群的1561个bulk RNA-seq</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref.se &lt;- DatabaseImmuneCellExpressionData()</span><br></pre></td></tr></table></figure></li>
+<li><p>获得HPCA数据。下载并缓存那些存储在人类原代细胞图集Human Primary<br>Cell Atlas中的数据的标准化表达值。 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref.se &lt;- HumanPrimaryCellAtlasData()</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>获得用于分类的造血细胞的bulk微阵列表达。下载并缓存可在GSE24759中找到的211个分类的造血细胞群体的bulk人类微阵列样品的标准化表达值<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref.se &lt;- NovershternHematopoieticData()</span><br></pre></td></tr></table></figure></li>
+<li>获取分类的人类免疫细胞的大量RNA-seq数据。下载并缓存可在GSE107011中找到的分类免疫细胞群的114个bulk RNA-seq样本的标准化表达值。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref.se &lt;- MonacoImmuneData()</span><br></pre></td></tr></table></figure>
+<h2 id="小鼠参考集"><a href="#小鼠参考集" class="headerlink" title="小鼠参考集"></a>小鼠参考集</h2></li>
+</ol>
+</li>
+<li><p>从免疫基因组计划中获取小鼠bulk表达数据。下载并缓存由免疫基因组计划（ImmGen）生成的830个纯小鼠免疫细胞微阵列样品的标准化表达值。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref.se &lt;- ImmGenData()</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>获取分类细胞群体的小鼠bulk表达数据（RNA-seq）。下载并缓存可在GEO处找到的358个分类细胞群体的bulk RNA-seq样本的标准化表达值。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref.se &lt;- MouseRNAseqData()</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+</li>
+</ol>
+<p>================================================================</p>
+<h1 id="二、-aggregateReference"><a href="#二、-aggregateReference" class="headerlink" title="二、 aggregateReference()"></a>二、 aggregateReference()</h1><h6 id="作用：整合参考数据集"><a href="#作用：整合参考数据集" class="headerlink" title="作用：整合参考数据集"></a>作用：整合参考数据集</h6><h6 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">aggregateReference(ref, labels, power &#x3D; 0.5, assay.type &#x3D; &quot;logcounts&quot;,</span><br><span class="line">check.missing &#x3D; TRUE)</span><br></pre></td></tr></table></figure>
+<h6 id="参数："><a href="#参数：" class="headerlink" title="参数："></a>参数：</h6><ul>
+<li><strong>ref</strong>：参考表达式值的数字矩阵，通常包含对数表达式值。 或者，包含此类矩阵的SummarizedExperiment对象。<ul>
+<li><strong>labels</strong>：参考中所有细胞的已知标记的特征向量或因子。</li>
+<li><strong>power</strong>：0到1之间的数字标量，指示每个数据集被整合的权重，请参阅详细信息。</li>
+<li><strong>assay.type</strong>：一个整数标量或字符串，如果ref是SummarizedExperiment对象，则指定包含的相关表达式矩阵的ref的数组。</li>
+<li><strong>check.missing</strong>：逻辑标量，指示是否应检查行的缺失值（如果找到，则将其删除）。<h6 id="细节"><a href="#细节" class="headerlink" title="细节"></a>细节</h6><blockquote>
+<ul>
+<li>对于单细胞参考数据集，将单个细胞聚合为伪大量样本以用作参考通常很有用。</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<h6 id="例子"><a href="#例子" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">library(scater)</span><br><span class="line">sce &lt;- mockSCE()</span><br><span class="line">sce &lt;- logNormCounts(sce)</span><br><span class="line"># Making up some labels for demonstration purposes:</span><br><span class="line">labels &lt;- sample(LETTERS, ncol(sce), replace&#x3D;TRUE)</span><br><span class="line"># Aggregation at different resolutions:</span><br><span class="line">(aggr &lt;- aggregateReference(sce, labels, power&#x3D;0.5))</span><br><span class="line">(aggr &lt;- aggregateReference(sce, labels, power&#x3D;0))</span><br><span class="line"># No aggregation:</span><br><span class="line">(aggr &lt;- aggregateReference(sce, labels, power&#x3D;1))</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="三、matchReferences"><a href="#三、matchReferences" class="headerlink" title="三、matchReferences()"></a>三、matchReferences()</h1><h6 id="作用"><a href="#作用" class="headerlink" title="作用"></a>作用</h6><blockquote>
+<p>匹配来自两个参考的标签。匹配来自一对引用的标签，这些标签对应于相同的基础细胞类型或状态，但名称有所不同。</p>
+</blockquote>
+<h6 id="用法-1"><a href="#用法-1" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">matchReferences(ref1, ref2, labels1, labels2, ...)</span><br></pre></td></tr></table></figure>
+<h6 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h6><ul>
+<li><strong>ref1, ref2</strong>:单细胞（通常是对数转换）表达值的数值矩阵，其中行是基因，列是细胞。 或者，包含此类矩阵的SummarizedExperiment对象</li>
+<li><strong>labels1, labels2</strong>:ref1和ref2中所有细胞的已知标记的特征向量或因子。</li>
+<li>…：Further arguments to pass to SingleR.<h6 id="返回值"><a href="#返回值" class="headerlink" title="返回值"></a>返回值</h6>包含相互分配的概率表的数字矩阵。 接近1的值表示两个reference之间的标签之间的1：1映射。<h6 id="例子-1"><a href="#例子-1" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">example(SingleR, echo&#x3D;FALSE)</span><br><span class="line">test$label &lt;- paste0(test$label, &quot;_X&quot;) # modifying the labels.</span><br><span class="line">matchReferences(test, ref, labels1&#x3D;test$label, labels2&#x3D;ref$label)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="四、-classifySingleR"><a href="#四、-classifySingleR" class="headerlink" title="四、 classifySingleR()"></a>四、 classifySingleR()</h1><h6 id="例子-2"><a href="#例子-2" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ref.se &lt;- BlueprintEncodeData(rm.NA &#x3D; &quot;rows&quot;)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>使用预先训练的包含迭代微调方法的分类器，将标签分配给测试数据集中的每个细胞。(<strong>PS:说人话，就是用来分类细胞的</strong>）</p>
+</blockquote>
+<h6 id="用法："><a href="#用法：" class="headerlink" title="用法："></a>用法：</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">classifySingleR(test, trained, quantile &#x3D; 0.8, fine.tune &#x3D; TRUE,</span><br><span class="line">tune.thresh &#x3D; 0.05, sd.thresh &#x3D; NULL, prune &#x3D; TRUE,</span><br><span class="line">assay.type &#x3D; &quot;logcounts&quot;, check.missing &#x3D; TRUE,</span><br><span class="line">BPPARAM &#x3D; SerialParam())</span><br></pre></td></tr></table></figure>
+<h6 id="参数：-1"><a href="#参数：-1" class="headerlink" title="参数："></a>参数：</h6><ul>
+<li><strong>test</strong>： 单细胞表达值的数字矩阵，其中行是基因，列是细胞。或者，包含此类矩阵的SummarizedExperiment对象。</li>
+<li><strong>trained</strong>：一个列表，其中包含trainSingleR函数的输出。</li>
+<li><strong>quantile</strong>：一个数字标量，指定相关分布的分位数，用于计算每个标签的分值。</li>
+<li><strong>fine.tune</strong>：指示是否应执行微调的逻辑标量。</li>
+<li><strong>tune.thresh</strong>：一个数字标量，指定与微调中使用的最大相关值之间的最大差。</li>
+<li><strong>sd.thresh</strong>：一个数字标量，指定标准偏差的阈值，用于微调过程中的基因选择。   </li>
+<li><strong>prune</strong>：逻辑标量，指示是否应执行标签修剪label pruning。</li>
+<li><strong>assay.type</strong>：如果test为SummarizedExperiment，则使用整数标量或字符串指定要使用的表达式值矩阵。</li>
+<li><strong>check.missing</strong>：逻辑标量，指示是否应检查行的缺失值（如果找到，则将其删除）。</li>
+<li><strong>BPPARAM</strong>：BiocParallelParam对象指定要使用的并行化方案。<h6 id="细节："><a href="#细节：" class="headerlink" title="细节："></a>细节：</h6><blockquote>
+<ul>
+<li><p>仅出于与trainSingleR的一致性，将默认assay.type设置为“ logcounts”。 实际上，也可以使用原始计数（用于UMI数据）或笔录计数（用于读取计数数据），而无需进行标准化和对数转换。 </p>
+</li>
+<li><p>除了因数值引起的一些细微差异外，任何单调变换都不会影响相关值的计算<br>精确。</p>
+</li>
+</ul>
+</blockquote>
+<h6 id="返回值-1"><a href="#返回值-1" class="headerlink" title="返回值"></a>返回值</h6><ul>
+<li>每个行都对应于测试集中的细胞的DataFrame。 </li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>如果<strong>fine.tune = FALSE</strong>，则字段为：<pre><code>- **scores**，是每个细胞（行）中每个标签（列）在指定分位数处的相关性数字矩阵。
+- **labels**：一个字符向量，其中包含基于得分最高条目的预测标签。
+- **prune.scores**：包含修剪标签的字符向量，其中“低质量”标签被替换为NA。 仅在prune = TRUE时添加。</code></pre></li>
+<li>如果<strong>fine.tune = TRUE</strong>，则字段为：<pre><code>- **scores**：同上
+- **tuned.scores**：包含第一个和第二个的DataFrame。 这些是在每个细胞的最后一轮微调中包含最佳和次佳分数的数值向量。
+- **labels**：微调后包含预测标签的字符向量。
+- **prune.scores**：如上所述的修剪标签的字符向量。 仅在prune = TRUE时添加。</code></pre></li>
+<li>在<strong>这两种情况</strong>下，DataFrame的元数据都包含：<pre><code>- **common.genes**：在微调之前用于计算相关性的基因的特征向量。
+- **de.genes**：用于区分每对标记的基因列表。 仅当在构建训练集时genes =“ de”才返回，有关更多详细信息，请参见 ?trainSingleR。</code></pre><h6 id="例子-3"><a href="#例子-3" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">##############################</span><br><span class="line">## Mocking up training data ##</span><br><span class="line">##############################</span><br><span class="line">Ngroups &lt;- 5</span><br><span class="line">Ngenes &lt;- 1000</span><br><span class="line">means &lt;- matrix(rnorm(Ngenes*Ngroups), nrow&#x3D;Ngenes)</span><br><span class="line">means[1:900,] &lt;- 0</span><br><span class="line">colnames(means) &lt;- LETTERS[1:5]</span><br><span class="line">g &lt;- rep(LETTERS[1:5], each&#x3D;4)</span><br><span class="line">ref &lt;- SummarizedExperiment(</span><br><span class="line">list(counts&#x3D;matrix(rpois(1000*length(g),</span><br><span class="line">lambda&#x3D;10*2^means[,g]), ncol&#x3D;length(g))),</span><br><span class="line">colData&#x3D;DataFrame(label&#x3D;g)</span><br><span class="line">)</span><br><span class="line">rownames(ref) &lt;- sprintf(&quot;GENE_%s&quot;, seq_len(nrow(ref)))</span><br><span class="line">ref &lt;- scater::logNormCounts(ref)</span><br><span class="line">trained &lt;- trainSingleR(ref, ref$label)</span><br><span class="line">###############################</span><br><span class="line">## Mocking up some test data ##</span><br><span class="line">###############################</span><br><span class="line">N &lt;- 100</span><br><span class="line">g &lt;- sample(LETTERS[1:5], N, replace&#x3D;TRUE)</span><br><span class="line">test &lt;- SummarizedExperiment(</span><br><span class="line">list(counts&#x3D;matrix(rpois(1000*N, lambda&#x3D;2^means[,g]), ncol&#x3D;N)),</span><br><span class="line">colData&#x3D;DataFrame(label&#x3D;g)</span><br><span class="line">)</span><br><span class="line">rownames(test) &lt;- sprintf(&quot;GENE_%s&quot;, seq_len(nrow(test)))</span><br><span class="line">test &lt;- scater::logNormCounts(test)</span><br><span class="line">###############################</span><br><span class="line">## Performing classification ##</span><br><span class="line">###############################</span><br><span class="line">pred &lt;- classifySingleR(test, trained)</span><br><span class="line">table(predicted&#x3D;pred$labels, truth&#x3D;g)</span><br></pre></td></tr></table></figure>
+<h3 id="五、getDeltaFromMedian"><a href="#五、getDeltaFromMedian" class="headerlink" title="五、getDeltaFromMedian()"></a>五、getDeltaFromMedian()</h3><h6 id="作用-1"><a href="#作用-1" class="headerlink" title="作用"></a>作用</h6>计算每个细胞的增量值，该增量值为：已分配标签的得分与所有标签的和中位数and median 得分之间的差<h6 id="用法-2"><a href="#用法-2" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">getDeltaFromMedian(results)</span><br></pre></td></tr></table></figure>
+<h6 id="Arguments"><a href="#Arguments" class="headerlink" title="Arguments"></a>Arguments</h6><ul>
+<li><strong>results</strong>: 一个DataFrame，其中包含SingleR或classifySingleR生成的输出。<h6 id="细节-1"><a href="#细节-1" class="headerlink" title="细节"></a>细节</h6>对于想要应用更多自定义过滤器或可视化的用户，此函数计算与pruneScores中使用的相同的增量值。</li>
+</ul>
+</li>
+</ul>
+<h6 id="返回值-2"><a href="#返回值-2" class="headerlink" title="返回值"></a>返回值</h6><blockquote>
+<p>一个数字向量，其中包含结果中每个细胞的增量值。</p>
+</blockquote>
+<h6 id="例子-4"><a href="#例子-4" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># Running the SingleR() example.</span><br><span class="line">example(SingleR, echo&#x3D;FALSE)</span><br><span class="line">summary(getDeltaFromMedian(pred))</span><br></pre></td></tr></table></figure>
+<h1 id="六、plotScoreDistribution"><a href="#六、plotScoreDistribution" class="headerlink" title="六、plotScoreDistribution()"></a>六、plotScoreDistribution()</h1><p>绘制标签的分值分布。</p>
+<h6 id="用法-3"><a href="#用法-3" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plotScoreDistribution(results, show &#x3D; c(&quot;delta.med&quot;, &quot;delta.next&quot;,</span><br><span class="line">&quot;scores&quot;), labels &#x3D; colnames(results$scores), size &#x3D; 0.5, ncol &#x3D; 5,</span><br><span class="line">dots.on.top &#x3D; TRUE, this.color &#x3D; &quot;#F0E442&quot;,</span><br><span class="line">pruned.color &#x3D; &quot;#E69F00&quot;, other.color &#x3D; &quot;gray60&quot;,</span><br><span class="line">show.nmads &#x3D; NULL, show.min.diff &#x3D; NULL)</span><br></pre></td></tr></table></figure>
+<h6 id="参数-1"><a href="#参数-1" class="headerlink" title="参数"></a>参数</h6><ul>
+<li><strong>results</strong>：包含SingleR或classifySingleR的输出的DataFrame。</li>
+<li><strong>show</strong>：字符串，指定是否显示分打分。与中位数的差还是与下一个最佳分数的差。</li>
+<li><strong>labels</strong>：指示要显示的一个或多个标签的字符串向量。 如果为NULL，则显示结果中所有可用的标签。</li>
+<li><strong>size</strong>：数字标量，用于设置点的大小。</li>
+<li><strong>ncol</strong>：整数标量，用于设置每行显示的标签数。</li>
+<li><strong>dots.on.top</strong>:逻辑指定是否在小提琴图的上方绘制细胞点。</li>
+<li><strong>this.color</strong>：字符串，用于指定分配给标签的细胞的颜色。</li>
+<li><strong>pruned.color</strong>：字符串，用于指定分配给标签但已修剪的细胞的颜色。</li>
+<li><strong>other.color</strong>：字符串，用于指定未分配给标签的其他细胞的颜色。</li>
+<li><strong>show.nmads</strong>：数字标量，显示使用pruneScores进行修剪的阈值。 仅在show =“ delta.med”时使用。</li>
+<li><strong>show.min.diff</strong>：数字标量，显示使用pruneScores进行修剪的阈值。 仅在show =“ delta.med”或“ delta.next”时使用。<h6 id="细节-2"><a href="#细节-2" class="headerlink" title="细节"></a>细节</h6>此函数可创建一个抖动图和小提琴图，以显示一个或多个标签上所有细胞的分配得分或相关值。<h6 id="返回值-3"><a href="#返回值-3" class="headerlink" title="返回值"></a>返回值</h6>ggplot对象，显示小提琴图中的分配的打分。<h6 id="例子-5"><a href="#例子-5" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">example(SingleR, echo&#x3D;FALSE)</span><br><span class="line"># To show the distribution of scores grouped by label:</span><br><span class="line">plotScoreDistribution(results &#x3D; pred)</span><br><span class="line"># We can display a particular label using the label</span><br><span class="line">plotScoreDistribution(results &#x3D; pred, labels &#x3D; &quot;B&quot;)</span><br><span class="line"># To show the distribution of deltas between cells&#39; maximum and median scores,</span><br><span class="line"># grouped by label, change &#96;show&#96; to &quot;delta.med&quot;:</span><br><span class="line"># This is useful for checking&#x2F;adjusting nmads and min.diff.med</span><br><span class="line">plotScoreDistribution(results &#x3D; pred, show &#x3D; &quot;delta.med&quot;)</span><br><span class="line"># The nmads cutoff can be displayed using show.nmads.</span><br><span class="line">plotScoreDistribution(results &#x3D; pred, show &#x3D; &quot;delta.med&quot;,</span><br><span class="line">show.nmads &#x3D; 3)</span><br><span class="line"># A min.diff.med cutoff can be shown using show.min.diff</span><br><span class="line">plotScoreDistribution(results &#x3D; pred, show &#x3D; &quot;delta.med&quot;,</span><br><span class="line">show.min.diff &#x3D; 0.03)</span><br><span class="line"># To show the distribution of deltas between cells&#39; top 2 fine-tuning scores,</span><br><span class="line"># grouped by label, change &#96;show&#96; to &quot;delta.next&quot;:</span><br><span class="line"># This is useful for checking&#x2F;adjusting min.diff.next</span><br><span class="line">plotScoreDistribution(results &#x3D; pred, show &#x3D; &quot;delta.next&quot;)</span><br><span class="line"># A min.diff.med cutoff can be shown using show.min.diff</span><br><span class="line">plotScoreDistribution(results &#x3D; pred, show &#x3D; &quot;delta.next&quot;,</span><br><span class="line">show.min.diff &#x3D; 0.03)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h1 id="七、plotScoreHeatmap"><a href="#七、plotScoreHeatmap" class="headerlink" title="七、plotScoreHeatmap()"></a>七、plotScoreHeatmap()</h1><h6 id="作用-2"><a href="#作用-2" class="headerlink" title="作用"></a>作用</h6><p>创建所有细胞标签组合的SingleR分配打分的热图。</p>
+<h6 id="用法-4"><a href="#用法-4" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plotScoreHeatmap(results, cells.use &#x3D; NULL, labels.use &#x3D; NULL,</span><br><span class="line">clusters &#x3D; NULL, show.labels &#x3D; FALSE, show.pruned &#x3D; FALSE,</span><br><span class="line">max.labels &#x3D; 40, normalize &#x3D; TRUE, cells.order &#x3D; NULL,</span><br><span class="line">order.by.clusters &#x3D; FALSE, annotation_col &#x3D; NULL,</span><br><span class="line">show_colnames &#x3D; FALSE, ...)</span><br></pre></td></tr></table></figure>
+<h6 id="参数-2"><a href="#参数-2" class="headerlink" title="参数"></a>参数</h6><ul>
+<li><strong>results</strong>：包含SingleR或classifySingleR的输出的DataFrame。</li>
+<li><strong>cells.use</strong>：整数或字符串向量，指定要显示的单个细胞的。 如果为NULL，则显示所有细胞。</li>
+<li><strong>labels.use</strong>：指示要显示哪些标签的字符串向量。 如果为NULL，则显示结果中所有可用的标签。</li>
+<li><strong>clusters</strong>：包含细胞cluster分配的字符串矢量或因子，将在热图中以注释条显示。</li>
+<li><strong>show.labels</strong>：逻辑值，指示是否应将细胞的最终标签显示为注释条。</li>
+<li><strong>show.pruned</strong>：逻辑值，指示标签的修剪状态是否应显示为注释条，正如pruneScores所定义。</li>
+<li><strong>max.labels</strong>：整数标量，指定要显示的最大标签数。</li>
+<li><strong>normalize</strong>：逻辑指定是否应将相关系数归一化为[0，1]。</li>
+<li><strong>cells.order</strong>：整数向量，指定热图的细胞/列的顺序。 不论<code>cells.use</code>，此输入的长度应与细胞总数相同。 如果设置，则关闭基于评分的列聚类。</li>
+<li><strong>order.by.clusters</strong>：逻辑标量，指定是否应按聚类而不是分数对细胞进行排序。 如果设置，则优先于<code>cells.order</code>输入。</li>
+<li><strong>annotation_col, show_colnames, …</strong>：传递给了pheatmap的用于热图控制的其他参数。<br>####### 返回值<br>在当前的图形设备上使用pheatmap生成分配分数的热图。<h6 id="颜色归一化"><a href="#颜色归一化" class="headerlink" title="颜色归一化"></a>颜色归一化</h6>(略）<h6 id="例子-6"><a href="#例子-6" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"># Running the SingleR() example.</span><br><span class="line">example(SingleR, echo&#x3D;FALSE)</span><br><span class="line"># Grab the original identities of the cells as mock clusters</span><br><span class="line">clusts &lt;- g</span><br><span class="line"># Creating a heatmap that shows cells showed.</span><br><span class="line">plotScoreHeatmap(pred)</span><br><span class="line"># Creating a heatmap with clusters displayed.</span><br><span class="line">plotScoreHeatmap(pred, clusters&#x3D;clusts)</span><br><span class="line"># Creating a heatmap with labels displayed.</span><br><span class="line">plotScoreHeatmap(pred, show.labels &#x3D; TRUE)</span><br><span class="line"># Creating a heatmap with whether cells were pruned displayed.</span><br><span class="line">plotScoreHeatmap(pred, show.pruned &#x3D; TRUE)</span><br><span class="line"># We can also turn off the normalization with Normalize &#x3D; FALSE</span><br><span class="line">plotScoreHeatmap(pred, clusters&#x3D;clusts, normalize &#x3D; FALSE)</span><br><span class="line"># To only show certain labels, you can use labels.use or max.labels</span><br><span class="line">plotScoreHeatmap(pred, clusters&#x3D;clusts, labels.use &#x3D; c(&quot;A&quot;,&quot;B&quot;,&quot;D&quot;))</span><br><span class="line">plotScoreHeatmap(pred, clusters&#x3D;clusts, max.labels &#x3D; 4)</span><br><span class="line"># We can pass extra tweaks the heatmap as well</span><br><span class="line">plotScoreHeatmap(pred, clusters&#x3D;clusts, fontsize.row &#x3D; 9)</span><br><span class="line">plotScoreHeatmap(pred, clusters&#x3D;clusts, cutree_col &#x3D; 3)</span><br></pre></td></tr></table></figure>
+<h1 id="八、pruneScores"><a href="#八、pruneScores" class="headerlink" title="八、pruneScores()"></a>八、pruneScores()</h1><h6 id="作用-3"><a href="#作用-3" class="headerlink" title="作用"></a>作用</h6>修剪低质量的assignments。删除根据classifySingleR返回的cell-label打分矩阵的低质量assignments。<h6 id="用法-5"><a href="#用法-5" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pruneScores(results, nmads &#x3D; 3, min.diff.med &#x3D; -Inf,</span><br><span class="line">min.diff.next &#x3D; 0, get.thresholds &#x3D; FALSE)</span><br></pre></td></tr></table></figure>
+<h6 id="参数-3"><a href="#参数-3" class="headerlink" title="参数"></a>参数</h6></li>
+<li><strong>results</strong>:包含着SingleR或classifySingleR生成的输出的DataFrame。</li>
+<li><strong>nmads</strong>：数字标量，用于指定在每个标签的增量值分布（即与中位数的差）中定义较低离群值的MAD数值。</li>
+<li><strong>min.diff.med</strong>：数字标量，指定每个细胞的最小可接受增量。</li>
+<li><strong>min.diff.next</strong>：数字标量，指定微调中最佳分数和次佳分数之间的最小差。</li>
+<li><strong>get.thresholds</strong>：逻辑标量，指示是否应返回增量上的每个标签的阈值。<h6 id="细节-3"><a href="#细节-3" class="headerlink" title="细节"></a>细节</h6><blockquote>
+<p>就其本身而言，SingleR算法将始终为每个细胞分配标签。即使该细胞的真实标签未在参考标签集中表示，也会发生这种情况，从而导致对该细胞分配了错误的标签。 pruneScores函数旨在通过消除得分较低的低质量分配来减轻这种影响。</p>
+</blockquote>
+<h6 id="返回值-4"><a href="#返回值-4" class="headerlink" title="返回值"></a>返回值</h6></li>
+<li>默认情况下会返回逻辑向量，该逻辑向量指定应忽略结果中的哪些分配。</li>
+<li>如果get.thresholds = TRUE，则返回一个数字向量，其中包含增量上每个标签的阈值，这是使用基于异常值的nmads方法定义的。<h6 id="在增量上应用硬过滤器hard-filter"><a href="#在增量上应用硬过滤器hard-filter" class="headerlink" title="在增量上应用硬过滤器hard filter"></a>在增量上应用硬过滤器hard filter</h6></li>
+<li>如果指定了min.diff.med，则丢弃增量低于此阈值的细胞。在这种情况下，可以设置最小差异阈值以强制删除低得分细胞。</li>
+<li>每个标签的增量分布可能是多峰的，但仍然是正确的。在这种情况下，最好设置nmads = Inf并依靠min.diff.med进行过滤。</li>
+<li>请注意，增量不会考虑微调的影响，因为分数在不同的微调步骤之间不具有可比性。<h6 id="基于微调分数过滤"><a href="#基于微调分数过滤" class="headerlink" title="基于微调分数过滤"></a>基于微调分数过滤</h6></li>
+<li>如果执行了微调以生成结果，则我们将忽略其微调得分不大于下一个最佳分数min.diff.next的任何细胞。</li>
+<li>下一个最 min.diff.next在[0，0.1]之间。 就是说， min.diff.next阈值在涉及高度相关标签的某些应用中可能是有害的。 <h6 id="例子-7"><a href="#例子-7" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><figcaption><span>Running the SingleR() example.</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">example(SingleR, echo&#x3D;FALSE)</span><br><span class="line">summary(pruneScores(pred))</span><br><span class="line">pruneScores(pred, get.thresholds&#x3D;TRUE)</span><br><span class="line"># Less stringent:</span><br><span class="line">summary(pruneScores(pred, min.diff.med&#x3D;0))</span><br><span class="line">summary(pruneScores(pred, nmads&#x3D;5))</span><br><span class="line"># More stringent:</span><br><span class="line">summary(pruneScores(pred, min.diff.med&#x3D;0.1))</span><br><span class="line">summary(pruneScores(pred, nmads&#x3D;2))</span><br><span class="line">summary(pruneScores(pred, min.diff.next&#x3D;0.1))</span><br></pre></td></tr></table></figure>
+<h1 id="九、-SingleR-）"><a href="#九、-SingleR-）" class="headerlink" title="九、 SingleR(）"></a>九、 SingleR(）</h1><h6 id="作用-4"><a href="#作用-4" class="headerlink" title="作用"></a>作用</h6>注释scRNA-seq数据。给定相同特征空间中的标记参考数据集，返回测试数据集中每个细胞的最佳注释。<h6 id="用法-6"><a href="#用法-6" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">SingleR(test, ref, labels, method &#x3D; c(&quot;single&quot;, &quot;cluster&quot;),</span><br><span class="line">clusters &#x3D; NULL, genes &#x3D; &quot;de&quot;, quantile &#x3D; 0.8, fine.tune &#x3D; TRUE,</span><br><span class="line">tune.thresh &#x3D; 0.05, sd.thresh &#x3D; 1, prune &#x3D; TRUE,</span><br><span class="line">assay.type.test &#x3D; &quot;logcounts&quot;, assay.type.ref &#x3D; &quot;logcounts&quot;,</span><br><span class="line">check.missing &#x3D; TRUE, BNPARAM &#x3D; KmknnParam(),</span><br><span class="line">BPPARAM &#x3D; SerialParam())</span><br></pre></td></tr></table></figure>
+<h6 id="参数-4"><a href="#参数-4" class="headerlink" title="参数"></a>参数</h6></li>
+<li><strong>test</strong>：single-cell表达值的数字矩阵，其中行是基因，列是细胞。 或者，包含此类矩阵的SummarizedExperiment对象。</li>
+<li><strong>ref</strong>： reference expression值的数字矩阵（通常是对数转换，请参阅trainSingleR）。 它应具有与测试中相同的行或其中一部分。或者，包含此类矩阵的SummarizedExperiment对象。</li>
+<li><strong>labels</strong>：参考中已知标签的所有样本的字符向量或的因子。</li>
+<li><strong>method</strong>：字符串，用于指定是在测试中的单个细胞上执行注释，还是在注释之前将其聚合到群集级配置文件cluster-level profiles中。</li>
+<li><strong>clusters</strong>：测试集中每个细胞的字符向量character vector或cluster标识因子。 仅在method =“ cluster”时使用。</li>
+<li><strong>genes, sd.thresh</strong>:控制用于注释的基因的参数，请参见trainSingleR。</li>
+<li><strong>quantile, fine.tune, tune.thresh, prune</strong>:传递给classifySingleR的更多参数。</li>
+<li><strong>assay.type.test</strong>:一个整数标量或字符串，如果测试集是SummarizedExperiment对象，则指定包含相关表达式矩阵的测试集的assay。</li>
+<li><strong>assay.type.ref</strong>：一个整数标量或字符串，如果ref是SummarizedExperiment对象，则指定包含相关表达式矩阵的ref的assay。</li>
+<li><strong>check.missing</strong>：逻辑标量，指示是否应检查行的缺失值（如果找到，则将其删除）。</li>
+<li><strong>BNPARAM</strong>：一个BiocNeighborParam对象，该对象指定用于构建最近邻居索引的算法。</li>
+<li><strong>BPPARAM</strong>：BiocParallelParam对象，指定应如何执行并行化（如果有）。<h6 id="细节-4"><a href="#细节-4" class="headerlink" title="细节"></a>细节</h6></li>
+<li>如果method =”single”，则此函数实际上只是trainSingleR和classifySingleR的便捷包装。</li>
+<li>如果method =”cluster”，则对per-cell profiles求和以获得 per-cluster profiles，并在这些cluster上执行注释。</li>
+<li>该功能将自动将分析限制为参考和测试中可用的基因的交集。 如果此交集为空（例如，因为两个数据集在其行名中使用不同的注释），则会引发错误。</li>
+<li>ref可以包含单个细胞数据或bulk数据，但对于前者，请阅读?trainSingleR中的注释。<h6 id="返回值-5"><a href="#返回值-5" class="headerlink" title="返回值"></a>返回值</h6>返回一个DataFrame，其中包含每个细胞或cluster（行）的注释统计信息。 这与classifySingleR的输出相同。<br>####### 例子<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">##############################</span><br><span class="line">## Mocking up training data ##</span><br><span class="line">##############################</span><br><span class="line">Ngroups &lt;- 5</span><br><span class="line">Ngenes &lt;- 1000</span><br><span class="line">means &lt;- matrix(rnorm(Ngenes*Ngroups), nrow&#x3D;Ngenes)</span><br><span class="line">means[1:900,] &lt;- 0</span><br><span class="line">colnames(means) &lt;- LETTERS[1:5]</span><br><span class="line">g &lt;- rep(LETTERS[1:5], each&#x3D;4)</span><br><span class="line">ref &lt;- SummarizedExperiment(</span><br><span class="line">list(counts&#x3D;matrix(rpois(1000*length(g),</span><br><span class="line">lambda&#x3D;10*2^means[,g]), ncol&#x3D;length(g))),</span><br><span class="line">colData&#x3D;DataFrame(label&#x3D;g)</span><br><span class="line">)</span><br><span class="line">rownames(ref) &lt;- sprintf(&quot;GENE_%s&quot;, seq_len(nrow(ref)))</span><br><span class="line">ref &lt;- scater::logNormCounts(ref)</span><br><span class="line">trained &lt;- trainSingleR(ref, ref$label)</span><br><span class="line">###############################</span><br><span class="line">## Mocking up some test data ##</span><br><span class="line">###############################</span><br><span class="line">N &lt;- 100</span><br><span class="line">g &lt;- sample(LETTERS[1:5], N, replace&#x3D;TRUE)</span><br><span class="line">test &lt;- SummarizedExperiment(</span><br><span class="line">list(counts&#x3D;matrix(rpois(1000*N, lambda&#x3D;2^means[,g]), ncol&#x3D;N)),</span><br><span class="line">colData&#x3D;DataFrame(label&#x3D;g)</span><br><span class="line">)</span><br><span class="line">rownames(test) &lt;- sprintf(&quot;GENE_%s&quot;, seq_len(nrow(test)))</span><br><span class="line">test &lt;- scater::logNormCounts(test)</span><br><span class="line">###############################</span><br><span class="line">## Performing classification ##</span><br><span class="line">###############################</span><br><span class="line">pred &lt;- SingleR(test, ref, labels&#x3D;ref$label)</span><br><span class="line">table(predicted&#x3D;pred$labels, truth&#x3D;g)</span><br><span class="line">pred2 &lt;- SingleR(test, ref, labels&#x3D;ref$label,</span><br><span class="line">method&#x3D;&quot;cluster&quot;, clusters&#x3D;test$label)</span><br><span class="line">table(predicted&#x3D;pred2$labels, truth&#x3D;rownames(pred2))</span><br></pre></td></tr></table></figure>
+<h1 id="十、trainSingleR"><a href="#十、trainSingleR" class="headerlink" title="十、trainSingleR"></a>十、trainSingleR</h1><h6 id="作用-5"><a href="#作用-5" class="headerlink" title="作用"></a>作用</h6>在具有已知标签的参考数据集上训练SingleR分类器。<h6 id="用法-7"><a href="#用法-7" class="headerlink" title="用法"></a>用法</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">trainSingleR(ref, labels, genes &#x3D; &quot;de&quot;, sd.thresh &#x3D; 1, de.n &#x3D; NULL,</span><br><span class="line">assay.type &#x3D; &quot;logcounts&quot;, check.missing &#x3D; TRUE,</span><br><span class="line">BNPARAM &#x3D; KmknnParam())</span><br></pre></td></tr></table></figure>
+<h6 id="参数-5"><a href="#参数-5" class="headerlink" title="参数"></a>参数</h6></li>
+<li><strong>ref</strong>：表达值的数字矩阵，其中行是基因，列是参考样本（单个细胞或bulk样本）。 这些 expression values应进行对数转换，请参阅“详细信息”。 或者，包含此类矩阵的SummarizedExperiment对象。</li>
+<li><strong>labels</strong>：参考中所有样本的字符向量或已知标签的因子。</li>
+<li><strong>genes</strong>：一个字符串，指定要使用的特征feature选择方法，请参见“详细信息”。可选地，在标签对pairs of labels之间包含DE基因的字符向量的列表。或者，包含每个标签的marker基因的字符向量列表。</li>
+<li>*<em>sd.thresh *</em>:一个数字标量，指定每个基因的标准偏差的最小阈值。 仅在genes =”sd”时使用。</li>
+<li><strong>de.n</strong>：一个整数标量，指定genes =”de”时要使用的DE基因的数量。 默认值为500 *（2/3）^ log2（N），其中N是唯一标签的数量。</li>
+<li><strong>assay.type</strong>:一个整数标量或字符串，如果ref是SummarizedExperiment对象，则指定包含相关表达式矩阵的ref的assay。</li>
+<li><strong>check.missing</strong>: 逻辑标量，指示是否应检查行的缺失值（如果找到，则将其删除）。</li>
+<li><strong>BNPARAM</strong>：一个BiocNeighborParam对象，该对象指定用于构建最近邻居索引的算法。<h6 id="细节-5"><a href="#细节-5" class="headerlink" title="细节"></a>细节</h6>几个选项可用于功能选择：</li>
+<li>genes=”de”：识别在标签之间差异表达的基因</li>
+<li>genes=”sd：识别在标签之间变化很大的基因。</li>
+<li>genes=”all”：将不会执行任何功能选择。<br>如果genes =”de”或”sd”，则 expression values 应是对数转换和归一化后的。<br>或者，基因可以是字符向量的命名列表：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">genes &lt;- list(</span><br><span class="line">A &#x3D; list(A &#x3D; character(0), B &#x3D; &quot;GENE_1&quot;, C &#x3D; c(&quot;GENE_2&quot;, &quot;GENE_3&quot;)),</span><br><span class="line">B &#x3D; list(A &#x3D; &quot;GENE_100&quot;, B &#x3D; character(0), C &#x3D; &quot;GENE_200&quot;),</span><br><span class="line">C &#x3D; list(A &#x3D; c(&quot;GENE_4&quot;, &quot;GENE_5&quot;), B &#x3D; &quot;GENE_5&quot;, C &#x3D; character(0))</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+如果我们考虑条目基因$A $B，它包含标签“ A”相对于标签“ B”的marker基因。 即，与“ B”相比，这些基因在“ A”中被上调。 每个标签的外部列表应具有一个列表，每个标签的内部列表应具有一个字符向量。 （显然，标签本身不能带有标记markers，因此将其设置为character(0)。）</li>
+</ul>
+<p>或者，基因可以是字符向量的命名列表：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">genes &lt;- list(</span><br><span class="line">A &#x3D; c(&quot;GENE_1&quot;, &quot;GENE_2&quot;, &quot;GENE_3&quot;),</span><br><span class="line">B &#x3D; c(&quot;GENE_100&quot;, &quot;GENE_200&quot;),</span><br><span class="line">C &#x3D; c(&quot;GENE_4&quot;, &quot;GENE_5&quot;)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h6 id="返回值-6"><a href="#返回值-6" class="headerlink" title="返回值"></a>返回值</h6><p>包含以下内容的列表：</p>
+<ul>
+<li>common.genes：通过feature selection方法选择的所有基因的字符向量</li>
+<li>nn.indices：BiocNeighborIndex对象的列表，其中包含预先构造的邻居搜索索引。</li>
+<li>original.exprs：数字矩阵的列表，其中每个矩阵都包含特定标签的所有细胞。</li>
+<li>extra：有关 feature selection的其他信息的列表，供classifySingleR使用。<br>这包括基因中的选择方法以及在分类过程中可以重复使用的方法特定结构。<h6 id="关于单细胞参考的注意事项"><a href="#关于单细胞参考的注意事项" class="headerlink" title="关于单细胞参考的注意事项"></a>关于单细胞参考的注意事项</h6></li>
+<li>默认marker选择基于中位数的对数倍变化，并且在设计时要考虑bulk参考。 对于单细胞参考数据来说，零计数超过50％的情况并不罕见，这方法可能并不有效。</li>
+<li>建议用户要么汇总其单细胞参考以创建pseudo-bulk samples，要么在外部检测markers并将markers列表传递给基因（请参见示例）<h6 id="例子-8"><a href="#例子-8" class="headerlink" title="例子"></a>例子</h6><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">##############################</span><br><span class="line">## Mocking up training data ##</span><br><span class="line">##############################</span><br><span class="line">Ngroups &lt;- 5</span><br><span class="line">Ngenes &lt;- 1000</span><br><span class="line">means &lt;- matrix(rnorm(Ngenes*Ngroups), nrow&#x3D;Ngenes)</span><br><span class="line">means[1:900,] &lt;- 0</span><br><span class="line">colnames(means) &lt;- LETTERS[1:5]</span><br><span class="line">g &lt;- rep(LETTERS[1:5], each&#x3D;4)</span><br><span class="line">ref &lt;- SummarizedExperiment(</span><br><span class="line">list(counts&#x3D;matrix(rpois(1000*length(g),</span><br><span class="line">lambda&#x3D;10*2^means[,g]), ncol&#x3D;length(g))),</span><br><span class="line">colData&#x3D;DataFrame(label&#x3D;g)</span><br><span class="line">)</span><br><span class="line">rownames(ref) &lt;- sprintf(&quot;GENE_%s&quot;, seq_len(nrow(ref)))</span><br><span class="line">########################</span><br><span class="line">## Doing the training ##</span><br><span class="line">########################</span><br><span class="line"># Normalizing and log-transforming for automated marker detection.</span><br><span class="line">ref &lt;- scater::logNormCounts(ref)</span><br><span class="line">trained &lt;- trainSingleR(ref, ref$label)</span><br><span class="line">trained</span><br><span class="line">trained$nn.indices</span><br><span class="line">length(trained$common.genes)</span><br><span class="line"># Alternatively, computing and supplying a set of label-specific markers.</span><br><span class="line">by.t &lt;- scran::pairwiseTTests(assay(ref, 2), ref$label)</span><br><span class="line">markers &lt;- scran::getTopMarkers(by.t[[1]], by.t[[2]], n&#x3D;10)</span><br><span class="line">trained &lt;- trainSingleR(ref, ref$label, genes&#x3D;markers)</span><br><span class="line">length(trained$common.genes)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    
+<div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    18 分钟 读完 (大约 2658 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                <a class="has-link-black-ter" href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
+            
+        </h1>
+        <div class="content">
+            <blockquote>
+<p>函数与参数请参考：<a href="https://www.jianshu.com/p/3303aecfc7cc">单细胞转录组（八）新版SingleR1.1.1细胞注释包的学习笔记</a></p>
+</blockquote>
+<h1 id="一、使用内置参考集"><a href="#一、使用内置参考集" class="headerlink" title="一、使用内置参考集"></a>一、使用内置参考集</h1><p>下载参考数据集<br>*<a href="https://bioconductor.org/packages/3.11/SingleR">SingleR</a>*通过专用的数据检索功能提供了多个参考数据集（主要来自大量RNA-seq或微阵列数据）。例如，要从人类原代细胞图集获取参考数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">library(SingleR)</span><br><span class="line">hpca.se &lt;- HumanPrimaryCellAtlasData()</span><br></pre></td></tr></table></figure>
+<p>这时候这个函数HumanPrimaryCellAtlasData()，会自动下载这个参考基因组序列</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; hpca.se &lt;- HumanPrimaryCellAtlasData()</span><br><span class="line">C:\Users\ADMINI~1\AppData\Local\ExperimentHub\ExperimentHub\Cache</span><br><span class="line">  does not exist, create directory? (yes&#x2F;no): yes</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">snapshotDate(): 2019-10-22</span><br><span class="line"></span><br><span class="line">see ?SingleR and browseVignettes(&#39;SingleR&#39;) for documentation</span><br><span class="line">downloading 1 resources</span><br><span class="line">retrieving 1 resource</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">loading from cache</span><br></pre></td></tr></table></figure>
+<p>加载参考集</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; hpca.se</span><br><span class="line">class: SummarizedExperiment </span><br><span class="line">dim: 19363 713 </span><br><span class="line">metadata(0):</span><br><span class="line">assays(1): logcounts</span><br><span class="line">rownames(19363): A1BG A1BG-AS1 ... ZZEF1 ZZZ3</span><br><span class="line">rowData names(0):</span><br><span class="line">colnames(713): GSM112490 GSM112491 ... GSM92233 GSM92234</span><br><span class="line">colData names(2): label.main label.fine</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>PS: 因为它的参考数据集只保存到cache里，也就是说每次想要相应的参考集都需要用相应的函数从互联网中下载这个数据集。而对于不能联网的服务器来说，这种方法显然比较麻烦。</p>
+</blockquote>
+<p>加载测试数据集<br>在<code>SingleR()函数</code>中使用此引用来注释La Manno等人的scRNA-seq数据集（2016）的前100个细胞</p>
+<p>其中有2个scRNAseq数据集的R包需要安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if (!requireNamespace(&quot;BiocManager&quot;, quietly &#x3D; TRUE))</span><br><span class="line">  install.packages(&quot;BiocManager&quot;)</span><br><span class="line"></span><br><span class="line">BiocManager::install(&quot;scRNAseq&quot;)</span><br><span class="line">BiocManager::install(&quot;scater&quot;)</span><br><span class="line">BiocManager::install(&quot;scran&quot;)</span><br></pre></td></tr></table></figure>
+<p>代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">library(scRNAseq)</span><br><span class="line">hESCs &lt;- LaMannoBrainData(&#39;human-es&#39;)</span><br><span class="line">hESCs &lt;- hESCs[,1:100]  #前100个细胞</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; library(scRNAseq) </span><br><span class="line">&gt; hESCs &lt;- LaMannoBrainData(&#39;human-es&#39;) #import dataset</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">snapshotDate(): 2019-10-22</span><br><span class="line">see ?scRNAseq and browseVignettes(&#39;scRNAseq&#39;) for documentation</span><br><span class="line">loading from cache</span><br><span class="line">see ?scRNAseq and browseVignettes(&#39;scRNAseq&#39;) for documentation</span><br><span class="line">loading from cache</span><br><span class="line">&gt; hESCs &lt;- hESCs[,1:100]  #前100个细胞</span><br><span class="line"></span><br><span class="line">&gt; # Restrict to common genes between test and reference data:</span><br><span class="line">&gt; common &lt;- intersect(rownames(hESCs), rownames(hpca.se))</span><br><span class="line">&gt; hpca.se &lt;- hpca.se[common,]</span><br><span class="line">&gt; hESCs &lt;- hESCs[common,]</span><br><span class="line">&gt; hESCs &lt;- logNormCounts(hESCs)</span><br></pre></td></tr></table></figure>
+<p>限制到测试集和参考集的共同基因</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Restrict to common genes between test and reference data:</span><br><span class="line">library(scater)</span><br><span class="line">common &lt;- intersect(rownames(hESCs), rownames(hpca.se))</span><br><span class="line">hpca.se &lt;- hpca.se[common,]</span><br><span class="line">hESCs &lt;- hESCs[common,]</span><br><span class="line">hESCs &lt;- logNormCounts(hESCs)  #对数标准化</span><br></pre></td></tr></table></figure>
+<p><strong>创建SingleR对象</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&gt; pred.hpca &lt;- SingleR(test &#x3D; hESCs, ref &#x3D; hpca.se, labels &#x3D; hpca.se$label.main)</span><br><span class="line">&gt; pred.hpca</span><br><span class="line"></span><br><span class="line">DataFrame with 100 rows and 5 columns</span><br><span class="line">                                                                    scores</span><br><span class="line">                                                                  &lt;matrix&gt;</span><br><span class="line">1772122_301_C02  0.118426779945786:0.179699807625087:0.157326274226517:...</span><br><span class="line">1772122_180_E05  0.129708246318855:0.236277439793527:0.202370888668263:...</span><br><span class="line">1772122_300_H02  0.158201338525345:0.250060222727419:0.211831550178353:...</span><br><span class="line">1772122_180_B09   0.158778546217777:0.27716592787528:0.222681369744636:...</span><br><span class="line">1772122_180_G04   0.138505219642345:0.236658649096383:0.19092437361406:...</span><br><span class="line">...                                                                    ...</span><br><span class="line">1772122_299_E07  0.145931041885859:0.241153701803065:0.217382763112476:...</span><br><span class="line">1772122_180_D02  0.122983434596168:0.239181076829949:0.181221997276501:...</span><br><span class="line">1772122_300_D09  0.129757310468164:0.233775092572195:0.196637664917917:...</span><br><span class="line">1772122_298_F09  0.143118885460347:0.262267367714562:0.214329641867196:...</span><br><span class="line">1772122_302_A11 0.0912854247387272:0.185945405472165:0.139232371863794:...</span><br><span class="line">                        first.labels                         tuning.scores</span><br><span class="line">                         &lt;character&gt;                           &lt;DataFrame&gt;</span><br><span class="line">1772122_301_C02 Neuroepithelial_cell   0.18244020296249:0.0991115652997192</span><br><span class="line">1772122_180_E05 Neuroepithelial_cell  0.137548373236792:0.0647133734667384</span><br><span class="line">1772122_300_H02 Neuroepithelial_cell   0.275798157639906:0.136969040146444</span><br><span class="line">1772122_180_B09 Neuroepithelial_cell 0.0851622797320583:0.0819878452425098</span><br><span class="line">1772122_180_G04 Neuroepithelial_cell   0.198841544187094:0.101662168246495</span><br><span class="line">...                              ...                                   ...</span><br><span class="line">1772122_299_E07 Neuroepithelial_cell  0.176002520599547:0.0922503823656398</span><br><span class="line">1772122_180_D02 Neuroepithelial_cell   0.196760862365318:0.112480486219438</span><br><span class="line">1772122_300_D09 Neuroepithelial_cell 0.0816424287822026:0.0221368018363302</span><br><span class="line">1772122_298_F09 Neuroepithelial_cell  0.187249853552379:0.0671892835266423</span><br><span class="line">1772122_302_A11 Neuroepithelial_cell   0.156079956344163:0.105132159755961</span><br><span class="line">                              labels        pruned.labels</span><br><span class="line">                         &lt;character&gt;          &lt;character&gt;</span><br><span class="line">1772122_301_C02 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_E05              Neurons              Neurons</span><br><span class="line">1772122_300_H02 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_B09 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_G04 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">...                              ...                  ...</span><br><span class="line">1772122_299_E07 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_D02 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_300_D09 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_298_F09 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_302_A11            Astrocyte            Astrocyte</span><br></pre></td></tr></table></figure>
+<p>输出的DataFrame每一行都包含单个细胞的预测结果。</p>
+<p>在微调（first.labels）之前，fine-tuning (labels) 之后，和pruning (pruned.labels)之后，显示标签以及相关的得分。</p>
+<p>我们总结了标记在我们的细胞子集中的分布：[6〜</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; table(pred.hpca$labels)</span><br><span class="line">Astrocyte Neuroepithelial_cell              Neurons </span><br><span class="line">        14                   81                    5</span><br></pre></td></tr></table></figure>
+<p>在这一点上，值得注意的是*<a href="https://bioconductor.org/packages/3.11/SingleR">SingleR</a>*与工作流/程序包无关。上面的示例使用<code>SummarizedExperiment</code>对象，但是相同的函数将接受任何（对数）规范化的表达矩阵。</p>
+<h1 id="二、使用-single-cell-references"><a href="#二、使用-single-cell-references" class="headerlink" title="二、使用 single-cell references"></a>二、使用 single-cell references</h1><ul>
+<li>设置数据：<br>在这里，我们将使用来自*<a href="https://bioconductor.org/packages/3.11/scRNAseq">scRNAseq</a><em>软件包的两个人类胰腺数据集。目的是*</em>使用一个预先标记的数据集注释另一个未标记的数据集**。首先，我们建立了Muraro等人（2016）数据集作为我们的参考。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&gt; library(scRNAseq)</span><br><span class="line">&gt; sceM &lt;- MuraroPancreasData()</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">snapshotDate(): 2019-10-22</span><br><span class="line">see ?scRNAseq and browseVignettes(&#39;scRNAseq&#39;) for documentation</span><br><span class="line">  Error: failed to load resource</span><br><span class="line">  name: EH2692</span><br><span class="line">  title: Muraro pancreas counts</span><br><span class="line">  reason: Recv failure: Connection was reset</span><br><span class="line">&gt; </span><br><span class="line">&gt; # One should normally do cell-based quality control at this point, but for</span><br><span class="line">&gt; # brevity&#39;s sake, we will just remove the unlabelled libraries here.</span><br><span class="line">&gt; sceM &lt;- sceM[,!is.na(sceM$label)]</span><br><span class="line">&gt; table(sceM$label)</span><br><span class="line"></span><br><span class="line">     acinar       alpha        beta       delta        duct endothelial     epsilon </span><br><span class="line">        219         812         448         193         245          21           3 </span><br><span class="line">mesenchymal          pp     unclear </span><br><span class="line">         80         101           4</span><br></pre></td></tr></table></figure>
+对数规范化：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sceM &lt;- logNormCounts(sceM)</span><br></pre></td></tr></table></figure>
+然后，我们从Grun等人的结果中（2016）建立我们的测试数据集。为了加快演示速度，我们前100个细胞的子集。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sceG &lt;- GrunPancreasData()</span><br><span class="line">sceG &lt;- sceG[,colSums(counts(sceG)) &gt; 0]</span><br><span class="line">sceG &lt;- logNormCounts(sceG) </span><br><span class="line">sceG &lt;- sceG[,1:100]</span><br></pre></td></tr></table></figure>
+然后，我们限制到共同基因：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">common &lt;- intersect(rownames(sceM), rownames(sceG))</span><br><span class="line">sceM &lt;- sceM[common,]</span><br><span class="line">sceG &lt;- sceG[common,]</span><br></pre></td></tr></table></figure></li>
+<li>定义自定义markers<ul>
+<li><code>SingleR()</code>中的默认marker定义适用于源自bulk RNA-seq 数据的参考。</li>
+<li>当使用单细胞数据作为参考时，我们建议您构建自己的marker list。这涉及标签之间的一系列成对比较，以定义将每个标签与另一个标签区分开的标记，并易于使用*<a href="https://bioconductor.org/packages/3.11/scran">scran</a>*的功能执行。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">library(scran)</span><br><span class="line">out &lt;- pairwiseTTests(logcounts(sceM), sceM$label, direction&#x3D;&quot;up&quot;)</span><br><span class="line">markers &lt;- getTopMarkers(out$statistics, out$pairs, n&#x3D;10)</span><br></pre></td></tr></table></figure>
+然后，我们<code>SingleR()</code>通过<code>genes=</code>参数直接提供这些基因。与默认方法相比，更加集中的基因集还可以更快地执行注释。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pred &lt;- SingleR(test&#x3D;sceG, ref&#x3D;sceM, labels&#x3D;sceM$label, genes&#x3D;markers)</span><br><span class="line">table(pred$labels)</span><br></pre></td></tr></table></figure>
+输出：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">acinar    beta   delta    duct      pp unclear </span><br><span class="line">   59       4       1      34       1       1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>在某些情况下，markers可能仅可用于特定标签，而不能用于标签之间的成对比较pairwise comparisons。通过向<code>genes</code>提供字符向量的命名列表来解决此问题。</li>
+<li>请注意，由于有关成对pairwise的差异（pairwise differences）的信息已被丢弃，这可能不如列表list-of-lists方法强大。</li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; label.markers &lt;- lapply(markers, unlist, recursive&#x3D;FALSE)</span><br><span class="line">&gt; pred2 &lt;- SingleR(test&#x3D;sceG, ref&#x3D;sceM, labels&#x3D;sceM$label, genes&#x3D;label.markers)</span><br><span class="line">&gt; table(pred$labels, pred2$labels)</span><br><span class="line"></span><br><span class="line">         acinar beta delta duct pp</span><br><span class="line">acinar      53    0     0    6  0</span><br><span class="line">beta         0    4     0    0  0</span><br><span class="line">delta        0    0     1    0  0</span><br><span class="line">duct         0    0     0   34  0</span><br><span class="line">pp           0    0     0    0  1</span><br><span class="line">unclear      0    0     0    1  0</span><br></pre></td></tr></table></figure>
+<h1 id="三、注释结果检验"><a href="#三、注释结果检验" class="headerlink" title="三、注释结果检验"></a>三、注释结果检验</h1></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>根据细胞内的打分<ul>
+<li><code>plotScoreHeatmap()</code>显示所有参考标签上所有细胞的分数，这使用户可以检查整个数据集中预测标签的置信度。我们还可以通过设置<code>clusters=</code>或<code>annotation_col=</code>来显示每个细胞的聚类（或其他元数据信息）。</li>
+</ul>
+</li>
+</ol>
+<p>这里，我们显示细胞来自哪个供体以及分配给每个细胞的标签。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">plotScoreHeatmap(pred, show.labels &#x3D; TRUE,</span><br><span class="line">    annotation_col&#x3D;data.frame(donor&#x3D;sceG$donor,</span><br><span class="line">        row.names&#x3D;rownames(pred)))</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-b4fc90c33e5ffa9d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="d"><br>对于此图，关键是检查每个细胞内分数的分布。理想情况下，每个细胞（即列）应具有一个明显比其余细胞更大的分数，表明它已明确分配给单个标签。给定细胞的相似分数分布表明该分配是不确定的。<br>2. 基于细胞的增量 the deltas across cells</p>
+<ul>
+<li><code>pruneScores()</code>函数将删除潜在的质量低下或模棱两可的分配。具体而言，基于每个细胞的增量（即：已分配标签的得分与每个细胞所有标签的中位数之间的差）来识别歧义分配。</li>
+<li>低增量表示分配是不确定的。如果参考中不存在细胞的真实标签，则这尤其重要。使用基于异常值的方法来确定用于修剪的确切阈值，该方法考虑了各种情况下相关程度的差异。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; to.remove &lt;- pruneScores(pred)</span><br><span class="line">&gt; summary(to.remove)</span><br><span class="line">  Mode      FALSE </span><br><span class="line">  logical     100</span><br></pre></td></tr></table></figure>
+<ul>
+<li>默认情况下，SingleR()还将报告被修剪的标签，该标签的低质量的分配被替换为<code>NA</code>。</li>
+<li>但是，默认修剪阈值可能不适用于每个数据集。?pruneScores有关详细讨论，请参见。</li>
+<li>我们还提供<code>plotScoreDistribution()</code>来帮助确定阈值是否合适。这将显示每个细胞之间的中位数差异的每个标签的分布，由此<code>pruneScores()</code>定义一个适当的阈值，即低于中位数的3个中位数绝对偏差（MADs）。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plotScoreDistribution(pred, show &#x3D; &quot;delta.med&quot;, ncol &#x3D; 3, show.nmads &#x3D; 3)</span><br></pre></td></tr></table></figure>
+<img src="https://upload-images.jianshu.io/upload_images/8909352-0c61e6a2497a2086.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="e"><br>如果必须调整某些调整参数，我们可以直接使用调整后的参数直接调用<code>pruneScores()</code>。在这里，我们如果要将它们丢弃，则将标签设置为<code>NA</code>，这也是SingleR()在<code>pruned.labels</code>中标记此类标签的方式。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; new.pruned &lt;- pred$labels</span><br><span class="line">&gt; new.pruned[pruneScores(pred, nmads&#x3D;5)] &lt;- NA</span><br><span class="line">&gt; table(new.pruned, useNA&#x3D;&quot;always&quot;)</span><br><span class="line"></span><br><span class="line">new.pruned</span><br><span class="line">acinar    beta   delta    duct      pp unclear    &lt;NA&gt; </span><br><span class="line">   59       4       1      34       1       1       0</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="3">
+<li>基于Marker基因表达<br>另一个简单而有效的诊断方法是检查测试数据集中每个标签的Marker基因的表达。<br>我们从<code>SingleR</code>结果的metadata中提取markers的identity ，并将其用于*<a href="https://bioconductor.org/packages/3.11/scater">scater</a>*的<code>plotHeatmap()</code>函数中，如下所示用于beta细胞标记。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># Beta cell-related markers</span><br><span class="line">plotHeatmap(sceG, order_columns_by&#x3D;list(I(pred$labels)),</span><br><span class="line">    features&#x3D;unique(unlist(metadata(pred)$de.genes$beta)))</span><br></pre></td></tr></table></figure>
+<img src="https://upload-images.jianshu.io/upload_images/8909352-d2ec71984cbe4f61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="a"><br>我们可以通过将代码包装在一个循环中来对所有标签执行此操作，如下所示：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">for (lab in names(metadata(pred)$de.genes)) &#123;</span><br><span class="line">    plotHeatmap(sceG, order_columns_by&#x3D;list(I(pred$labels)), </span><br><span class="line">        features&#x3D;unique(unlist(metadata(pred)$de.genes[[lab]]))) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://upload-images.jianshu.io/upload_images/8909352-b2d7d1ecadd4beba.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="b"></li>
+</ol>
+</li>
+</ul>
+<p>如果将测试数据集中的某个细胞确信地分配给特定标签，则我们希望它对该标签的markers具有强烈的表达。至少，它应该表现出相对于分配给其他标签的细胞，那些marker的上调。如果不是这种情况，则必须对分配的质量表示怀疑。</p>
+<h1 id="四、可用参考集"><a href="#四、可用参考集" class="headerlink" title="四、可用参考集"></a>四、可用参考集</h1><p><img src="https://upload-images.jianshu.io/upload_images/8909352-5da5b1f9b0f3debd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="c"></p>
+<h1 id="五、高级使用"><a href="#五、高级使用" class="headerlink" title="五、高级使用"></a>五、高级使用</h1><p>高级用户可以将<code>SingleR()</code>工作流程分为两个单独的训练和分类步骤。<br>这意味着训练（例如marker检测，最近邻居索引的组装）仅需要执行一次。然后，只要测试特征集与训练集中的特征相同，或是训练集中特征的超集，就可以在具有不同测试数据集的多个分类 classifications 中重复使用所得的数据结构。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">trained &lt;- trainSingleR(sceM, labels&#x3D;sceM$label, genes&#x3D;markers)</span><br><span class="line">pred2b &lt;- classifySingleR(sceG, trained)</span><br><span class="line">table(pred$labels, pred2b$labels)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">        acinar beta delta duct pp unclear</span><br><span class="line">acinar      59    0     0    0  0       0</span><br><span class="line">beta         0    4     0    0  0       0</span><br><span class="line">delta        0    0     1    0  0       0</span><br><span class="line">duct         0    0     0   34  0       0</span><br><span class="line">pp           0    0     0    0  1       0</span><br><span class="line">unclear      0    0     0    0  0       1</span><br></pre></td></tr></table></figure>
+<p>通过几个参数还可以提高效率：</p>
+<ul>
+<li><code>trainSingleR()</code>通过*<a href="https://bioconductor.org/packages/3.11/BiocNeighbors">BiocNeighbors</a>*包中的<code>BNPARAM=</code>参数切换到最接近的邻近索引的近似算法。</li>
+<li><code>classifySingleR()</code>与*<a href="https://bioconductor.org/packages/3.11/BiocParallel">BiocParallel</a>*软件包中的<code>BPPARAM=</code>参数并行进行微调步骤。</li>
+</ul>
+<p>这些参数也可以在<code>SingleR()</code>命令中指定。</p>
+<h1 id="现在才发现的点："><a href="#现在才发现的点：" class="headerlink" title="现在才发现的点："></a>现在才发现的点：</h1><p>SingleR1.1.1其实也就比原本的SingleR1.0.0多了几个下载参考数据集的函数，其他函数都相同。除了不再支持<code>CreateSinglerSeuratObject()</code>函数</p>
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+
+
+
+
+
+    
+<div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
                 <time class="level-item has-text-grey" datetime="2020-02-06T07:44:27.000Z">2020-02-06</time>
                 
                 
@@ -448,7 +978,7 @@
                     </p>
                     <a href="/archives">
                         <p class="title has-text-weight-normal">
-                            3
+                            6
                         </p>
                     </a>
                 </div>
@@ -582,6 +1112,63 @@
         
         <article class="media">
             
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:19:42.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:17:54.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
             <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【爬虫项目(二)】Selenium框架爬取淘宝商品信息">
@@ -618,25 +1205,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <a href="/2020/02/03/hello-world/" class="media-left">
-                <p class="image is-64x64">
-                    <img class="thumbnail" src="/images/thumbnail.svg" alt="Hello World">
-                </p>
-            </a>
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-03T09:24:27.548Z">2020-02-03</time></div>
-                    <a href="/2020/02/03/hello-world/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Hello World</a>
-                    <p class="is-size-7 is-uppercase">
-                        
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
         
@@ -654,7 +1222,7 @@
                     <span class="level-item">二月 2020</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">3</span>
+                    <span class="level-item tag">6</span>
                 </span>
             </a>
         </li>
@@ -696,6 +1264,63 @@
         
         <article class="media">
             
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:19:42.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:17:54.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
             <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【爬虫项目(二)】Selenium框架爬取淘宝商品信息">
@@ -732,25 +1357,6 @@
             </div>
         </article>
         
-        <article class="media">
-            
-            <a href="/2020/02/03/hello-world/" class="media-left">
-                <p class="image is-64x64">
-                    <img class="thumbnail" src="/images/thumbnail.svg" alt="Hello World">
-                </p>
-            </a>
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-03T09:24:27.548Z">2020-02-03</time></div>
-                    <a href="/2020/02/03/hello-world/" class="title has-link-black-ter is-size-6 has-text-weight-normal">Hello World</a>
-                    <p class="is-size-7 is-uppercase">
-                        
-                    </p>
-                </div>
-            </div>
-        </article>
-        
     </div>
 </div>
     
@@ -768,7 +1374,7 @@
                     <span class="level-item">二月 2020</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">3</span>
+                    <span class="level-item tag">6</span>
                 </span>
             </a>
         </li>

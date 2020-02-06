@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html  lang="zh">
+<head>
+    <meta charset="utf-8" />
+
+<meta name="generator" content="Hexo 4.2.0" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+<title>【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操 - Robin唔系肉饼</title>
+
+
+    <meta name="description" content="函数与参数请参考：单细胞转录组（八）新版SingleR1.1.1细胞注释包的学习笔记  一、使用内置参考集下载参考数据集*SingleR*通过专用的数据检索功能提供了多个参考数据集（主要来自大量RNA-seq或微阵列数据）。例如，要从人类原代细胞图集获取参考数据： 12library(SingleR)hpca.se &lt;- HumanPrimaryCellAtlasData() 这时候这个函">
+<meta property="og:type" content="article">
+<meta property="og:title" content="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操">
+<meta property="og:url" content="http://yoursite.com/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/index.html">
+<meta property="og:site_name" content="Robin唔系肉饼">
+<meta property="og:description" content="函数与参数请参考：单细胞转录组（八）新版SingleR1.1.1细胞注释包的学习笔记  一、使用内置参考集下载参考数据集*SingleR*通过专用的数据检索功能提供了多个参考数据集（主要来自大量RNA-seq或微阵列数据）。例如，要从人类原代细胞图集获取参考数据： 12library(SingleR)hpca.se &lt;- HumanPrimaryCellAtlasData() 这时候这个函">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://yoursite.com/images/og_image.png">
+<meta property="article:published_time" content="2020-02-06T08:09:19.000Z">
+<meta property="article:modified_time" content="2020-02-06T08:13:36.421Z">
+<meta property="article:author" content="Robin Hood">
+<meta property="article:tag" content="学习与分享">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
+
+
+
+
+
+
+
+<link rel="icon" href="/images/favicon.svg">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-light.css">
+
+
+    
+    
+<style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/css/lightgallery.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/css/justifiedGallery.min.css">
+
+    
+    
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+    
+    
+    
+    
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+    
+    
+    
+    
+    
+    
+    
+    <link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="is-3-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/">
+            
+                <img src="/images/logo.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a class="navbar-item"
+                href="/">Home</a>
+                
+                <a class="navbar-item"
+                href="/archives">Archives</a>
+                
+                <a class="navbar-item"
+                href="/categories">Categories</a>
+                
+                <a class="navbar-item"
+                href="/tags">Tags</a>
+                
+                <a class="navbar-item"
+                href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    <a class="navbar-item" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                
+                <a class="navbar-item search" title="搜索" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+<div class="card">
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time>
+                
+                
+                <span class="level-item has-text-grey">
+                    
+                    
+                    18 分钟 读完 (大约 2658 个字)
+                </span>
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
+            
+                【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操
+            
+        </h1>
+        <div class="content">
+            <blockquote>
+<p>函数与参数请参考：<a href="https://www.jianshu.com/p/3303aecfc7cc">单细胞转录组（八）新版SingleR1.1.1细胞注释包的学习笔记</a></p>
+</blockquote>
+<h1 id="一、使用内置参考集"><a href="#一、使用内置参考集" class="headerlink" title="一、使用内置参考集"></a>一、使用内置参考集</h1><p>下载参考数据集<br>*<a href="https://bioconductor.org/packages/3.11/SingleR">SingleR</a>*通过专用的数据检索功能提供了多个参考数据集（主要来自大量RNA-seq或微阵列数据）。例如，要从人类原代细胞图集获取参考数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">library(SingleR)</span><br><span class="line">hpca.se &lt;- HumanPrimaryCellAtlasData()</span><br></pre></td></tr></table></figure>
+<p>这时候这个函数HumanPrimaryCellAtlasData()，会自动下载这个参考基因组序列</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&gt; hpca.se &lt;- HumanPrimaryCellAtlasData()</span><br><span class="line">C:\Users\ADMINI~1\AppData\Local\ExperimentHub\ExperimentHub\Cache</span><br><span class="line">  does not exist, create directory? (yes&#x2F;no): yes</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">snapshotDate(): 2019-10-22</span><br><span class="line"></span><br><span class="line">see ?SingleR and browseVignettes(&#39;SingleR&#39;) for documentation</span><br><span class="line">downloading 1 resources</span><br><span class="line">retrieving 1 resource</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">loading from cache</span><br></pre></td></tr></table></figure>
+<p>加载参考集</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; hpca.se</span><br><span class="line">class: SummarizedExperiment </span><br><span class="line">dim: 19363 713 </span><br><span class="line">metadata(0):</span><br><span class="line">assays(1): logcounts</span><br><span class="line">rownames(19363): A1BG A1BG-AS1 ... ZZEF1 ZZZ3</span><br><span class="line">rowData names(0):</span><br><span class="line">colnames(713): GSM112490 GSM112491 ... GSM92233 GSM92234</span><br><span class="line">colData names(2): label.main label.fine</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>PS: 因为它的参考数据集只保存到cache里，也就是说每次想要相应的参考集都需要用相应的函数从互联网中下载这个数据集。而对于不能联网的服务器来说，这种方法显然比较麻烦。</p>
+</blockquote>
+<p>加载测试数据集<br>在<code>SingleR()函数</code>中使用此引用来注释La Manno等人的scRNA-seq数据集（2016）的前100个细胞</p>
+<p>其中有2个scRNAseq数据集的R包需要安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">if (!requireNamespace(&quot;BiocManager&quot;, quietly &#x3D; TRUE))</span><br><span class="line">  install.packages(&quot;BiocManager&quot;)</span><br><span class="line"></span><br><span class="line">BiocManager::install(&quot;scRNAseq&quot;)</span><br><span class="line">BiocManager::install(&quot;scater&quot;)</span><br><span class="line">BiocManager::install(&quot;scran&quot;)</span><br></pre></td></tr></table></figure>
+<p>代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">library(scRNAseq)</span><br><span class="line">hESCs &lt;- LaMannoBrainData(&#39;human-es&#39;)</span><br><span class="line">hESCs &lt;- hESCs[,1:100]  #前100个细胞</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&gt; library(scRNAseq) </span><br><span class="line">&gt; hESCs &lt;- LaMannoBrainData(&#39;human-es&#39;) #import dataset</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">snapshotDate(): 2019-10-22</span><br><span class="line">see ?scRNAseq and browseVignettes(&#39;scRNAseq&#39;) for documentation</span><br><span class="line">loading from cache</span><br><span class="line">see ?scRNAseq and browseVignettes(&#39;scRNAseq&#39;) for documentation</span><br><span class="line">loading from cache</span><br><span class="line">&gt; hESCs &lt;- hESCs[,1:100]  #前100个细胞</span><br><span class="line"></span><br><span class="line">&gt; # Restrict to common genes between test and reference data:</span><br><span class="line">&gt; common &lt;- intersect(rownames(hESCs), rownames(hpca.se))</span><br><span class="line">&gt; hpca.se &lt;- hpca.se[common,]</span><br><span class="line">&gt; hESCs &lt;- hESCs[common,]</span><br><span class="line">&gt; hESCs &lt;- logNormCounts(hESCs)</span><br></pre></td></tr></table></figure>
+<p>限制到测试集和参考集的共同基因</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># Restrict to common genes between test and reference data:</span><br><span class="line">library(scater)</span><br><span class="line">common &lt;- intersect(rownames(hESCs), rownames(hpca.se))</span><br><span class="line">hpca.se &lt;- hpca.se[common,]</span><br><span class="line">hESCs &lt;- hESCs[common,]</span><br><span class="line">hESCs &lt;- logNormCounts(hESCs)  #对数标准化</span><br></pre></td></tr></table></figure>
+<p><strong>创建SingleR对象</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">&gt; pred.hpca &lt;- SingleR(test &#x3D; hESCs, ref &#x3D; hpca.se, labels &#x3D; hpca.se$label.main)</span><br><span class="line">&gt; pred.hpca</span><br><span class="line"></span><br><span class="line">DataFrame with 100 rows and 5 columns</span><br><span class="line">                                                                    scores</span><br><span class="line">                                                                  &lt;matrix&gt;</span><br><span class="line">1772122_301_C02  0.118426779945786:0.179699807625087:0.157326274226517:...</span><br><span class="line">1772122_180_E05  0.129708246318855:0.236277439793527:0.202370888668263:...</span><br><span class="line">1772122_300_H02  0.158201338525345:0.250060222727419:0.211831550178353:...</span><br><span class="line">1772122_180_B09   0.158778546217777:0.27716592787528:0.222681369744636:...</span><br><span class="line">1772122_180_G04   0.138505219642345:0.236658649096383:0.19092437361406:...</span><br><span class="line">...                                                                    ...</span><br><span class="line">1772122_299_E07  0.145931041885859:0.241153701803065:0.217382763112476:...</span><br><span class="line">1772122_180_D02  0.122983434596168:0.239181076829949:0.181221997276501:...</span><br><span class="line">1772122_300_D09  0.129757310468164:0.233775092572195:0.196637664917917:...</span><br><span class="line">1772122_298_F09  0.143118885460347:0.262267367714562:0.214329641867196:...</span><br><span class="line">1772122_302_A11 0.0912854247387272:0.185945405472165:0.139232371863794:...</span><br><span class="line">                        first.labels                         tuning.scores</span><br><span class="line">                         &lt;character&gt;                           &lt;DataFrame&gt;</span><br><span class="line">1772122_301_C02 Neuroepithelial_cell   0.18244020296249:0.0991115652997192</span><br><span class="line">1772122_180_E05 Neuroepithelial_cell  0.137548373236792:0.0647133734667384</span><br><span class="line">1772122_300_H02 Neuroepithelial_cell   0.275798157639906:0.136969040146444</span><br><span class="line">1772122_180_B09 Neuroepithelial_cell 0.0851622797320583:0.0819878452425098</span><br><span class="line">1772122_180_G04 Neuroepithelial_cell   0.198841544187094:0.101662168246495</span><br><span class="line">...                              ...                                   ...</span><br><span class="line">1772122_299_E07 Neuroepithelial_cell  0.176002520599547:0.0922503823656398</span><br><span class="line">1772122_180_D02 Neuroepithelial_cell   0.196760862365318:0.112480486219438</span><br><span class="line">1772122_300_D09 Neuroepithelial_cell 0.0816424287822026:0.0221368018363302</span><br><span class="line">1772122_298_F09 Neuroepithelial_cell  0.187249853552379:0.0671892835266423</span><br><span class="line">1772122_302_A11 Neuroepithelial_cell   0.156079956344163:0.105132159755961</span><br><span class="line">                              labels        pruned.labels</span><br><span class="line">                         &lt;character&gt;          &lt;character&gt;</span><br><span class="line">1772122_301_C02 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_E05              Neurons              Neurons</span><br><span class="line">1772122_300_H02 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_B09 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_G04 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">...                              ...                  ...</span><br><span class="line">1772122_299_E07 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_180_D02 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_300_D09 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_298_F09 Neuroepithelial_cell Neuroepithelial_cell</span><br><span class="line">1772122_302_A11            Astrocyte            Astrocyte</span><br></pre></td></tr></table></figure>
+<p>输出的DataFrame每一行都包含单个细胞的预测结果。</p>
+<p>在微调（first.labels）之前，fine-tuning (labels) 之后，和pruning (pruned.labels)之后，显示标签以及相关的得分。</p>
+<p>我们总结了标记在我们的细胞子集中的分布：[6〜</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&gt; table(pred.hpca$labels)</span><br><span class="line">Astrocyte Neuroepithelial_cell              Neurons </span><br><span class="line">        14                   81                    5</span><br></pre></td></tr></table></figure>
+<p>在这一点上，值得注意的是*<a href="https://bioconductor.org/packages/3.11/SingleR">SingleR</a>*与工作流/程序包无关。上面的示例使用<code>SummarizedExperiment</code>对象，但是相同的函数将接受任何（对数）规范化的表达矩阵。</p>
+<h1 id="二、使用-single-cell-references"><a href="#二、使用-single-cell-references" class="headerlink" title="二、使用 single-cell references"></a>二、使用 single-cell references</h1><ul>
+<li>设置数据：<br>在这里，我们将使用来自*<a href="https://bioconductor.org/packages/3.11/scRNAseq">scRNAseq</a><em>软件包的两个人类胰腺数据集。目的是*</em>使用一个预先标记的数据集注释另一个未标记的数据集**。首先，我们建立了Muraro等人（2016）数据集作为我们的参考。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">&gt; library(scRNAseq)</span><br><span class="line">&gt; sceM &lt;- MuraroPancreasData()</span><br><span class="line">  |&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;| 100%</span><br><span class="line"></span><br><span class="line">snapshotDate(): 2019-10-22</span><br><span class="line">see ?scRNAseq and browseVignettes(&#39;scRNAseq&#39;) for documentation</span><br><span class="line">  Error: failed to load resource</span><br><span class="line">  name: EH2692</span><br><span class="line">  title: Muraro pancreas counts</span><br><span class="line">  reason: Recv failure: Connection was reset</span><br><span class="line">&gt; </span><br><span class="line">&gt; # One should normally do cell-based quality control at this point, but for</span><br><span class="line">&gt; # brevity&#39;s sake, we will just remove the unlabelled libraries here.</span><br><span class="line">&gt; sceM &lt;- sceM[,!is.na(sceM$label)]</span><br><span class="line">&gt; table(sceM$label)</span><br><span class="line"></span><br><span class="line">     acinar       alpha        beta       delta        duct endothelial     epsilon </span><br><span class="line">        219         812         448         193         245          21           3 </span><br><span class="line">mesenchymal          pp     unclear </span><br><span class="line">         80         101           4</span><br></pre></td></tr></table></figure>
+对数规范化：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sceM &lt;- logNormCounts(sceM)</span><br></pre></td></tr></table></figure>
+然后，我们从Grun等人的结果中（2016）建立我们的测试数据集。为了加快演示速度，我们前100个细胞的子集。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sceG &lt;- GrunPancreasData()</span><br><span class="line">sceG &lt;- sceG[,colSums(counts(sceG)) &gt; 0]</span><br><span class="line">sceG &lt;- logNormCounts(sceG) </span><br><span class="line">sceG &lt;- sceG[,1:100]</span><br></pre></td></tr></table></figure>
+然后，我们限制到共同基因：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">common &lt;- intersect(rownames(sceM), rownames(sceG))</span><br><span class="line">sceM &lt;- sceM[common,]</span><br><span class="line">sceG &lt;- sceG[common,]</span><br></pre></td></tr></table></figure></li>
+<li>定义自定义markers<ul>
+<li><code>SingleR()</code>中的默认marker定义适用于源自bulk RNA-seq 数据的参考。</li>
+<li>当使用单细胞数据作为参考时，我们建议您构建自己的marker list。这涉及标签之间的一系列成对比较，以定义将每个标签与另一个标签区分开的标记，并易于使用*<a href="https://bioconductor.org/packages/3.11/scran">scran</a>*的功能执行。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">library(scran)</span><br><span class="line">out &lt;- pairwiseTTests(logcounts(sceM), sceM$label, direction&#x3D;&quot;up&quot;)</span><br><span class="line">markers &lt;- getTopMarkers(out$statistics, out$pairs, n&#x3D;10)</span><br></pre></td></tr></table></figure>
+然后，我们<code>SingleR()</code>通过<code>genes=</code>参数直接提供这些基因。与默认方法相比，更加集中的基因集还可以更快地执行注释。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pred &lt;- SingleR(test&#x3D;sceG, ref&#x3D;sceM, labels&#x3D;sceM$label, genes&#x3D;markers)</span><br><span class="line">table(pred$labels)</span><br></pre></td></tr></table></figure>
+输出：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">acinar    beta   delta    duct      pp unclear </span><br><span class="line">   59       4       1      34       1       1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ul>
+<li>在某些情况下，markers可能仅可用于特定标签，而不能用于标签之间的成对比较pairwise comparisons。通过向<code>genes</code>提供字符向量的命名列表来解决此问题。</li>
+<li>请注意，由于有关成对pairwise的差异（pairwise differences）的信息已被丢弃，这可能不如列表list-of-lists方法强大。</li>
+</ul>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&gt; label.markers &lt;- lapply(markers, unlist, recursive&#x3D;FALSE)</span><br><span class="line">&gt; pred2 &lt;- SingleR(test&#x3D;sceG, ref&#x3D;sceM, labels&#x3D;sceM$label, genes&#x3D;label.markers)</span><br><span class="line">&gt; table(pred$labels, pred2$labels)</span><br><span class="line"></span><br><span class="line">         acinar beta delta duct pp</span><br><span class="line">acinar      53    0     0    6  0</span><br><span class="line">beta         0    4     0    0  0</span><br><span class="line">delta        0    0     1    0  0</span><br><span class="line">duct         0    0     0   34  0</span><br><span class="line">pp           0    0     0    0  1</span><br><span class="line">unclear      0    0     0    1  0</span><br></pre></td></tr></table></figure>
+<h1 id="三、注释结果检验"><a href="#三、注释结果检验" class="headerlink" title="三、注释结果检验"></a>三、注释结果检验</h1></li>
+</ul>
+</li>
+</ul>
+<ol>
+<li>根据细胞内的打分<ul>
+<li><code>plotScoreHeatmap()</code>显示所有参考标签上所有细胞的分数，这使用户可以检查整个数据集中预测标签的置信度。我们还可以通过设置<code>clusters=</code>或<code>annotation_col=</code>来显示每个细胞的聚类（或其他元数据信息）。</li>
+</ul>
+</li>
+</ol>
+<p>这里，我们显示细胞来自哪个供体以及分配给每个细胞的标签。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">plotScoreHeatmap(pred, show.labels &#x3D; TRUE,</span><br><span class="line">    annotation_col&#x3D;data.frame(donor&#x3D;sceG$donor,</span><br><span class="line">        row.names&#x3D;rownames(pred)))</span><br></pre></td></tr></table></figure>
+<p><img src="https://upload-images.jianshu.io/upload_images/8909352-b4fc90c33e5ffa9d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="d"><br>对于此图，关键是检查每个细胞内分数的分布。理想情况下，每个细胞（即列）应具有一个明显比其余细胞更大的分数，表明它已明确分配给单个标签。给定细胞的相似分数分布表明该分配是不确定的。<br>2. 基于细胞的增量 the deltas across cells</p>
+<ul>
+<li><code>pruneScores()</code>函数将删除潜在的质量低下或模棱两可的分配。具体而言，基于每个细胞的增量（即：已分配标签的得分与每个细胞所有标签的中位数之间的差）来识别歧义分配。</li>
+<li>低增量表示分配是不确定的。如果参考中不存在细胞的真实标签，则这尤其重要。使用基于异常值的方法来确定用于修剪的确切阈值，该方法考虑了各种情况下相关程度的差异。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; to.remove &lt;- pruneScores(pred)</span><br><span class="line">&gt; summary(to.remove)</span><br><span class="line">  Mode      FALSE </span><br><span class="line">  logical     100</span><br></pre></td></tr></table></figure>
+<ul>
+<li>默认情况下，SingleR()还将报告被修剪的标签，该标签的低质量的分配被替换为<code>NA</code>。</li>
+<li>但是，默认修剪阈值可能不适用于每个数据集。?pruneScores有关详细讨论，请参见。</li>
+<li>我们还提供<code>plotScoreDistribution()</code>来帮助确定阈值是否合适。这将显示每个细胞之间的中位数差异的每个标签的分布，由此<code>pruneScores()</code>定义一个适当的阈值，即低于中位数的3个中位数绝对偏差（MADs）。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">plotScoreDistribution(pred, show &#x3D; &quot;delta.med&quot;, ncol &#x3D; 3, show.nmads &#x3D; 3)</span><br></pre></td></tr></table></figure>
+<img src="https://upload-images.jianshu.io/upload_images/8909352-0c61e6a2497a2086.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="e"><br>如果必须调整某些调整参数，我们可以直接使用调整后的参数直接调用<code>pruneScores()</code>。在这里，我们如果要将它们丢弃，则将标签设置为<code>NA</code>，这也是SingleR()在<code>pruned.labels</code>中标记此类标签的方式。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&gt; new.pruned &lt;- pred$labels</span><br><span class="line">&gt; new.pruned[pruneScores(pred, nmads&#x3D;5)] &lt;- NA</span><br><span class="line">&gt; table(new.pruned, useNA&#x3D;&quot;always&quot;)</span><br><span class="line"></span><br><span class="line">new.pruned</span><br><span class="line">acinar    beta   delta    duct      pp unclear    &lt;NA&gt; </span><br><span class="line">   59       4       1      34       1       1       0</span><br></pre></td></tr></table></figure></li>
+</ul>
+<ol start="3">
+<li>基于Marker基因表达<br>另一个简单而有效的诊断方法是检查测试数据集中每个标签的Marker基因的表达。<br>我们从<code>SingleR</code>结果的metadata中提取markers的identity ，并将其用于*<a href="https://bioconductor.org/packages/3.11/scater">scater</a>*的<code>plotHeatmap()</code>函数中，如下所示用于beta细胞标记。<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># Beta cell-related markers</span><br><span class="line">plotHeatmap(sceG, order_columns_by&#x3D;list(I(pred$labels)),</span><br><span class="line">    features&#x3D;unique(unlist(metadata(pred)$de.genes$beta)))</span><br></pre></td></tr></table></figure>
+<img src="https://upload-images.jianshu.io/upload_images/8909352-d2ec71984cbe4f61.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="a"><br>我们可以通过将代码包装在一个循环中来对所有标签执行此操作，如下所示：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">for (lab in names(metadata(pred)$de.genes)) &#123;</span><br><span class="line">    plotHeatmap(sceG, order_columns_by&#x3D;list(I(pred$labels)), </span><br><span class="line">        features&#x3D;unique(unlist(metadata(pred)$de.genes[[lab]]))) </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<img src="https://upload-images.jianshu.io/upload_images/8909352-b2d7d1ecadd4beba.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="b"></li>
+</ol>
+</li>
+</ul>
+<p>如果将测试数据集中的某个细胞确信地分配给特定标签，则我们希望它对该标签的markers具有强烈的表达。至少，它应该表现出相对于分配给其他标签的细胞，那些marker的上调。如果不是这种情况，则必须对分配的质量表示怀疑。</p>
+<h1 id="四、可用参考集"><a href="#四、可用参考集" class="headerlink" title="四、可用参考集"></a>四、可用参考集</h1><p><img src="https://upload-images.jianshu.io/upload_images/8909352-5da5b1f9b0f3debd.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="c"></p>
+<h1 id="五、高级使用"><a href="#五、高级使用" class="headerlink" title="五、高级使用"></a>五、高级使用</h1><p>高级用户可以将<code>SingleR()</code>工作流程分为两个单独的训练和分类步骤。<br>这意味着训练（例如marker检测，最近邻居索引的组装）仅需要执行一次。然后，只要测试特征集与训练集中的特征相同，或是训练集中特征的超集，就可以在具有不同测试数据集的多个分类 classifications 中重复使用所得的数据结构。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">trained &lt;- trainSingleR(sceM, labels&#x3D;sceM$label, genes&#x3D;markers)</span><br><span class="line">pred2b &lt;- classifySingleR(sceG, trained)</span><br><span class="line">table(pred$labels, pred2b$labels)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">        acinar beta delta duct pp unclear</span><br><span class="line">acinar      59    0     0    0  0       0</span><br><span class="line">beta         0    4     0    0  0       0</span><br><span class="line">delta        0    0     1    0  0       0</span><br><span class="line">duct         0    0     0   34  0       0</span><br><span class="line">pp           0    0     0    0  1       0</span><br><span class="line">unclear      0    0     0    0  0       1</span><br></pre></td></tr></table></figure>
+<p>通过几个参数还可以提高效率：</p>
+<ul>
+<li><code>trainSingleR()</code>通过*<a href="https://bioconductor.org/packages/3.11/BiocNeighbors">BiocNeighbors</a>*包中的<code>BNPARAM=</code>参数切换到最接近的邻近索引的近似算法。</li>
+<li><code>classifySingleR()</code>与*<a href="https://bioconductor.org/packages/3.11/BiocParallel">BiocParallel</a>*软件包中的<code>BPPARAM=</code>参数并行进行微调步骤。</li>
+</ul>
+<p>这些参数也可以在<code>SingleR()</code>命令中指定。</p>
+<h1 id="现在才发现的点："><a href="#现在才发现的点：" class="headerlink" title="现在才发现的点："></a>现在才发现的点：</h1><p>SingleR1.1.1其实也就比原本的SingleR1.0.0多了几个下载参考数据集的函数，其他函数都相同。除了不再支持<code>CreateSinglerSeuratObject()</code>函数</p>
+
+        </div>
+        
+        
+        
+    </div>
+</div>
+
+
+
+<div class="card">
+    <div class="card-content">
+        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
+        <div class="buttons is-centered">
+            
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Alipay. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>qrcode</code> for Wechat. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                <!-- Visit https://www.paypal.com/donate/buttons/ to get your donate button -->
+
+<div class="notification is-danger">
+    You forgot to set the <code>business</code> and <code>currency_code</code> for Paypal. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+                
+<div class="notification is-danger">
+    You forgot to set the <code>url</code> Patreon. Please set it in <code>_config.yml</code>.
+</div>
+
+                
+        </div>
+    </div>
+</div>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">
+                <i class="level-item fas fa-chevron-left"></i>
+                <span class="level-item">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</span>
+            </a>
+        </div>
+        
+        
+        <div class="level-end">
+            <a class="level level-item has-link-grey  article-nav-next" href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/">
+                <span class="level-item">【爬虫项目(二)】Selenium框架爬取淘宝商品信息</span>
+                <i class="level-item fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen  has-order-1 column-left ">
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <nav class="level">
+            <div class="level-item has-text-centered" style="flex-shrink: 1">
+                <div>
+                    
+                    <figure class="image is-128x128 has-mb-6">
+                        <img class="" src="/images/avatar.png" alt="Robin唔系肉饼">
+                    </figure>
+                    
+                    <p class="is-size-4 is-block">
+                        Robin唔系肉饼
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-block">
+                        湾区青年，广佛候鸟
+                    </p>
+                    
+                    
+                    <p class="is-size-6 is-flex is-flex-center has-text-grey">
+                        <i class="fas fa-map-marker-alt has-mr-7"></i>
+                        <span>Guangdong, China</span>
+                    </p>
+                    
+                </div>
+            </div>
+        </nav>
+        <nav class="level is-mobile">
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        文章
+                    </p>
+                    <a href="/archives">
+                        <p class="title has-text-weight-normal">
+                            6
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        分类
+                    </p>
+                    <a href="/categories">
+                        <p class="title has-text-weight-normal">
+                            0
+                        </p>
+                    </a>
+                </div>
+            </div>
+            <div class="level-item has-text-centered is-marginless">
+                <div>
+                    <p class="heading">
+                        标签
+                    </p>
+                    <a href="/tags">
+                        <p class="title has-text-weight-normal">
+                            0
+                        </p>
+                    </a>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="level">
+            <a class="level-item button is-link is-rounded" href="https://github.com/BioAIEvolu" target="_blank" rel="noopener">
+                关注我</a>
+        </div>
+        
+        
+        
+        <div class="level is-mobile">
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="Github" href="https://github.com/BioAIEvolu">
+                
+                <i class="fab fa-github"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="Facebook" href="https://facebook.com">
+                
+                <i class="fab fa-facebook"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="Twitter" href="https://twitter.com">
+                
+                <i class="fab fa-twitter"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="Dribbble" href="https://dribbble.com">
+                
+                <i class="fab fa-dribbble"></i>
+                
+            </a>
+            
+            <a class="level-item button is-white is-marginless" target="_blank" rel="noopener"
+                title="RSS" href="/">
+                
+                <i class="fas fa-rss"></i>
+                
+            </a>
+            
+        </div>
+        
+    </div>
+</div>
+    
+        
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            链接
+        </h3>
+        <ul class="menu-list">
+        
+            <li>
+                <a class="level is-mobile" href="https://hexo.io" target="_blank" rel="noopener">
+                    <span class="level-left">
+                        <span class="level-item">Hexo</span>
+                    </span>
+                    <span class="level-right">
+                        <span class="level-item tag">hexo.io</span>
+                    </span>
+                </a>
+            </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                分类
+            </h3>
+            <ul class="menu-list">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+    
+        
+    
+    
+        <div class="column-right-shadow is-hidden-widescreen ">
+        
+            <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:19:42.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:17:54.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【爬虫项目(二)】Selenium框架爬取淘宝商品信息">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T07:44:27.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【爬虫项目(二)】Selenium框架爬取淘宝商品信息</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA-1%EF%BC%9AGithub-Hexo-Icarus%E4%B8%BB%E9%A2%98%E9%80%89%E6%8B%A9/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T07:32:07.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA-1%EF%BC%9AGithub-Hexo-Icarus%E4%B8%BB%E9%A2%98%E9%80%89%E6%8B%A9/" class="title has-link-black-ter is-size-6 has-text-weight-normal">&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">6</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+        
+            <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+            </div>
+        </div>
+    </div>
+</div>
+        
+        </div>
+    
+</div>
+
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-3-widescreen is-hidden-touch is-hidden-desktop-only has-order-3 column-right ">
+    
+        <div class="card widget">
+    <div class="card-content">
+        <h3 class="menu-label">
+            最新文章
+        </h3>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:19:42.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:17:54.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【爬虫项目(二)】Selenium框架爬取淘宝商品信息">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T07:44:27.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【爬虫项目(二)】Selenium框架爬取淘宝商品信息</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/2020/02/06/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA-1%EF%BC%9AGithub-Hexo-Icarus%E4%B8%BB%E9%A2%98%E9%80%89%E6%8B%A9/" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T07:32:07.000Z">2020-02-06</time></div>
+                    <a href="/2020/02/06/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA-1%EF%BC%9AGithub-Hexo-Icarus%E4%B8%BB%E9%A2%98%E9%80%89%E6%8B%A9/" class="title has-link-black-ter is-size-6 has-text-weight-normal">&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+        <h3 class="menu-label">
+            归档
+        </h3>
+        <ul class="menu-list">
+        
+        <li>
+            <a class="level is-marginless" href="/archives/2020/02/">
+                <span class="level-start">
+                    <span class="level-item">二月 2020</span>
+                </span>
+                <span class="level-end">
+                    <span class="level-item tag">6</span>
+                </span>
+            </a>
+        </li>
+        
+        </ul>
+        </div>
+    </div>
+</div>
+    
+        <div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                标签
+            </h3>
+            <div class="field is-grouped is-grouped-multiline">
+                
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/images/logo.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Robin Hood&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a> & <a
+                        href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="noopener">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" rel="noopener" title="Creative Commons" href="https://creativecommons.org/">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" rel="noopener" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" rel="noopener" title="Download on GitHub" href="https://github.com/ppoffice/hexo-theme-icarus">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("zh-CN");</script>
+
+
+<script>
+var IcarusThemeSettings = {
+    site: {
+        url: 'http://yoursite.com',
+        external_link: {"enable":true,"exclude":[]}
+    },
+    article: {
+        highlight: {
+            clipboard: true,
+            fold: 'unfolded'
+        }
+    }
+};
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+
+
+
+
+
+<script src="/js/animation.js"></script>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/lightgallery@1.6.8/dist/js/lightgallery.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/justifiedGallery@3.7.0/dist/js/jquery.justifiedGallery.min.js" defer></script>
+<script src="/js/gallery.js" defer></script>
+
+
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+
+<a id="back-to-top" title="回到顶端" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script src="/js/main.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="想要查找什么..." />
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '文章',
+                PAGES: '页面',
+                CATEGORIES: '分类',
+                TAGS: '标签',
+                UNTITLED: '(无标题)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>
