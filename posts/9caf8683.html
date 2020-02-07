@@ -7,21 +7,21 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-<title>&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39; - Robin唔系肉饼</title>
+<title>【生信基础1】根据SRA号批量下载fastq文件的一种实现方法 - Robin唔系肉饼</title>
 
 
-    <meta name="description" content="个人博客搭建(一)：Github+Hexo+Icarus主题优化 环境说明：  Win10 已经安装和配置好git 已经有github账号了，本地windows的git环境已经配置好了 npm已经有了   检查： 123git versionnode -vnpm -v  第一步 环境准备 安装 NodeJS 一路next下去安装即可 安装Hexo1npm install -g hexo-cli 第">
+    <meta name="description" content="一、思路分析：百度一下，看看有没有没有现成的批量下载方法 二、查到的一种比较简介的可以直接下载fastq文件的方法  从ncbi下载sra数据的几种种方式用的是prefetch方法，但是好像用不了。   然后下面还有几种方法1234echo SRR1553608 &gt; sra.idsecho SRR1553605 &gt;&gt; sra.ids# 利用sed和bashcat sra.ids|">
 <meta property="og:type" content="article">
-<meta property="og:title" content="&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;">
-<meta property="og:url" content="http://yoursite.com/2020/02/06/%E4%B8%AA%E4%BA%BA%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA-1%EF%BC%9AGithub-Hexo-Icarus%E4%B8%BB%E9%A2%98%E9%80%89%E6%8B%A9/index.html">
+<meta property="og:title" content="【生信基础1】根据SRA号批量下载fastq文件的一种实现方法">
+<meta property="og:url" content="http://yoursite.com/posts/9caf8683.html">
 <meta property="og:site_name" content="Robin唔系肉饼">
-<meta property="og:description" content="个人博客搭建(一)：Github+Hexo+Icarus主题优化 环境说明：  Win10 已经安装和配置好git 已经有github账号了，本地windows的git环境已经配置好了 npm已经有了   检查： 123git versionnode -vnpm -v  第一步 环境准备 安装 NodeJS 一路next下去安装即可 安装Hexo1npm install -g hexo-cli 第">
+<meta property="og:description" content="一、思路分析：百度一下，看看有没有没有现成的批量下载方法 二、查到的一种比较简介的可以直接下载fastq文件的方法  从ncbi下载sra数据的几种种方式用的是prefetch方法，但是好像用不了。   然后下面还有几种方法1234echo SRR1553608 &gt; sra.idsecho SRR1553605 &gt;&gt; sra.ids# 利用sed和bashcat sra.ids|">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yoursite.com/images/og_image.png">
-<meta property="article:published_time" content="2020-02-06T07:32:07.000Z">
-<meta property="article:modified_time" content="2020-02-06T07:55:18.851Z">
+<meta property="article:published_time" content="2020-02-06T13:54:03.000Z">
+<meta property="article:modified_time" content="2020-02-06T15:31:07.010Z">
 <meta property="article:author" content="Robin Hood">
-<meta property="article:tag" content="学习与分享">
+<meta property="article:tag" content=" &quot;生信基础&quot;">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
 
@@ -81,7 +81,7 @@
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/">
             
-                <img src="/images/logo.svg" alt="&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;" height="28">
+                <img src="/images/logo.svg" alt="【生信基础1】根据SRA号批量下载fastq文件的一种实现方法" height="28">
             
             </a>
         </div>
@@ -137,13 +137,13 @@
         
         <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
             <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2020-02-06T07:32:07.000Z">2020-02-06</time>
+                <time class="level-item has-text-grey" datetime="2020-02-06T13:54:03.000Z">2020-02-06</time>
                 
                 
                 <span class="level-item has-text-grey">
                     
                     
-                    5 分钟 读完 (大约 689 个字)
+                    2 分钟 读完 (大约 274 个字)
                 </span>
                 
                 
@@ -152,61 +152,37 @@
         
         <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
             
-                &#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;
+                【生信基础1】根据SRA号批量下载fastq文件的一种实现方法
             
         </h1>
         <div class="content">
-            <h1 id="个人博客搭建-一-：Github-Hexo-Icarus主题优化"><a href="#个人博客搭建-一-：Github-Hexo-Icarus主题优化" class="headerlink" title="个人博客搭建(一)：Github+Hexo+Icarus主题优化"></a>个人博客搭建(一)：Github+Hexo+Icarus主题优化</h1><blockquote>
-<p>环境说明：</p>
-<ul>
-<li>Win10</li>
-<li>已经安装和配置好git</li>
-<li>已经有github账号了，本地windows的git环境已经配置好了</li>
-<li>npm已经有了</li>
+            <h1 id="一、思路分析："><a href="#一、思路分析：" class="headerlink" title="一、思路分析："></a>一、思路分析：</h1><p>百度一下，看看有没有没有现成的批量下载方法</p>
+<h1 id="二、查到的一种比较简介的可以直接下载fastq文件的方法"><a href="#二、查到的一种比较简介的可以直接下载fastq文件的方法" class="headerlink" title="二、查到的一种比较简介的可以直接下载fastq文件的方法"></a>二、查到的一种比较简介的可以直接下载fastq文件的方法</h1><ul>
+<li><ul>
+<li><a href="https://cloud.tencent.com/developer/article/1450188">从ncbi下载sra数据的几种种方式</a>用的是prefetch方法，但是好像用不了。</li>
 </ul>
-</blockquote>
-<p>检查：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git version</span><br><span class="line">node -v</span><br><span class="line">npm -v</span><br></pre></td></tr></table></figure>
-
-<h2 id="第一步-环境准备"><a href="#第一步-环境准备" class="headerlink" title="第一步 环境准备"></a>第一步 环境准备</h2><ol>
-<li>安装 <a href="https://nodejs.org/en/">NodeJS</a> 一路next下去安装即可</li>
-<li>安装Hexo<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
-<h2 id="第二步-创建github-repository"><a href="#第二步-创建github-repository" class="headerlink" title="第二步 创建github repository"></a>第二步 创建github repository</h2></li>
+</li>
+<li>然后下面还有几种方法<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">echo SRR1553608 &gt; sra.ids</span><br><span class="line">echo SRR1553605 &gt;&gt; sra.ids</span><br><span class="line"># 利用sed和bash</span><br><span class="line">cat sra.ids|sed &#39;s&#x2F;SRR&#x2F;fastq-dump --split-files SRR&#x2F;&#39;|bash</span><br></pre></td></tr></table></figure>
+<h1 id="三、根据项目编号下载整个项目的fastq文件"><a href="#三、根据项目编号下载整个项目的fastq文件" class="headerlink" title="三、根据项目编号下载整个项目的fastq文件"></a>三、根据项目编号下载整个项目的fastq文件</h1></li>
+</ul>
+<ol>
+<li>到NCBI下载runinfo信息（更简单的方法是使用<a href="https://www.jianshu.com/p/af3819321448">通过EDirect获取runinfo</a>,但是发现这个安装总是不成功，所以用笨方法)<br><img src="/%E3%80%90%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%801%E3%80%91%E6%A0%B9%E6%8D%AESRA%E5%8F%B7%E6%89%B9%E9%87%8F%E4%B8%8B%E8%BD%BDfastq%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95/1.jpg" alt="a"></li>
+<li>导出后的runinfo信息，放到服务器中, 获取所有样本的SRR号<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup cat sra.ids|sed &#39;s&#x2F;SRR&#x2F;fastq-dump --split-files SRR&#x2F;&#39;|bash 2&gt;&amp;1 &gt;log &amp;</span><br></pre></td></tr></table></figure>
+<h1 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h1></li>
 </ol>
 <ul>
-<li>repository的命名必须是: 自己的github用户名.github.io</li>
-<li>然后在本地目录中新建一个目录,然后构建这个目录与github的repository的联系</li>
-</ul>
-<h2 id="第三步-用hexo框架搭建个人博客"><a href="#第三步-用hexo框架搭建个人博客" class="headerlink" title="第三步 用hexo框架搭建个人博客"></a>第三步 用hexo框架搭建个人博客</h2><ul>
-<li>进入在上面的git初始化后的目录</li>
-<li>运行<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo init myBlog</span><br><span class="line">cd myBlog</span><br><span class="line">npm install</span><br></pre></td></tr></table></figure>
-新建完成后，指定文件夹的目录如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt; dir .\</span><br><span class="line">.</span><br><span class="line">├── _config.yml # 网站的配置信息，您可以在此配置大部分的参数。 </span><br><span class="line">├── package.json</span><br><span class="line">├── scaffolds # 模版文件夹</span><br><span class="line">├── source  # 资源文件夹，除 _posts 文件，其他以下划线_开头的文件或者文件夹不会被编译打包到public文件夹</span><br><span class="line">|   ├── _drafts # 草稿文件</span><br><span class="line">|   └── _posts # 文章Markdowm文件 </span><br><span class="line">└── themes  # 主题文件夹</span><br></pre></td></tr></table></figure></li>
-<li>如果没有报错，继续运行：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo s </span><br><span class="line">#或者 </span><br><span class="line">hexo server</span><br></pre></td></tr></table></figure></li>
-<li>在浏览器中输入 <a href="http://localhost:4000">http://localhost:4000</a> 回车就可以预览效果了。<h2 id="第四步-主题个性化"><a href="#第四步-主题个性化" class="headerlink" title="第四步 主题个性化"></a>第四步 主题个性化</h2><blockquote>
-<p>此处选择的主题是：icarus</p>
-</blockquote>
-</li>
-<li>进入themes文件夹<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&gt; cd themes</span><br><span class="line">&gt; git clone https:&#x2F;&#x2F;github.com&#x2F;ppoffice&#x2F;hexo-theme-icarus.git themes&#x2F;icarus</span><br></pre></td></tr></table></figure></li>
-<li>设置主题的个性化设置：（先跳过）<h2 id="第五步-将hexo的网页部署到-Github"><a href="#第五步-将hexo的网页部署到-Github" class="headerlink" title="第五步 将hexo的网页部署到 Github"></a>第五步 将hexo的网页部署到 Github</h2></li>
-<li>修改配置，在 _config.yml文件下修改以下内容<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"># Deployment</span><br><span class="line">## Docs: https:&#x2F;&#x2F;hexo.io&#x2F;docs&#x2F;deployment.html</span><br><span class="line">deploy: </span><br><span class="line">  type: &#39;git&#39;</span><br><span class="line">  repo: </span><br><span class="line">    github: https:&#x2F;&#x2F;github.com&#x2F;BioAIEvolu&#x2F;BioAIEvolu.github.io.git #新建仓库地址</span><br><span class="line">  branch: master #published</span><br></pre></td></tr></table></figure></li>
-<li>安装一个部署插件 <a href="https://github.com/hexojs/hexo-deployer-git">hexo-deployer-git</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure></li>
-<li>上传到github，以下 g 是 generate 缩写，d 是 deploy 缩写：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo g -d</span><br></pre></td></tr></table></figure></li>
-<li>在浏览器访问网址： https://你的用户名.github.io 就会看到你的博客</li>
-</ul>
-<h2 id="第六步-用VScode编写Markdown文章并上传"><a href="#第六步-用VScode编写Markdown文章并上传" class="headerlink" title="第六步 用VScode编写Markdown文章并上传"></a>第六步 用VScode编写Markdown文章并上传</h2><ul>
-<li>打开VScode,安装插件”Markdown Preview enhanced”</li>
-<li>新建文章：在cmd输入命令<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&gt; hexo new &#39;创建个人博客&#39;</span><br><span class="line">&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;&#x3D;</span><br><span class="line">INFO  Checking dependencies</span><br><span class="line">INFO  Validating the configuration file</span><br><span class="line">INFO  Created: D:\Data\blog\myblog\source\_posts\创建个人博客.md</span><br></pre></td></tr></table></figure></li>
-<li>用VScode打开文件<code>D:\Data\blog\myblog\source\_posts\创建个人博客.md</code></li>
-<li>本地检查<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo g</span><br><span class="line">hexo s</span><br></pre></td></tr></table></figure></li>
-<li>部署到Github <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo clean #清除缓存文件 (db.json) 和已生成的静态文件 (public)</span><br><span class="line">hexo g -d</span><br></pre></td></tr></table></figure>
-<h2 id="参考文章"><a href="#参考文章" class="headerlink" title="参考文章"></a>参考文章</h2></li>
-<li><a href="https://segmentfault.com/a/1190000017986794">https://segmentfault.com/a/1190000017986794</a></li>
-<li><a href="https://blog.csdn.net/marvine/article/details/89816846">https://blog.csdn.net/marvine/article/details/89816846</a></li>
-<li><a href="https://blog.csdn.net/Fzidx/article/details/99185663">https://blog.csdn.net/Fzidx/article/details/99185663</a></li>
-<li><a href="https://github.com/ppoffice/hexo-theme-icarus">https://github.com/ppoffice/hexo-theme-icarus</a></li>
-<li><a href="https://www.cnblogs.com/KongkOngL/p/10449269.html">https://www.cnblogs.com/KongkOngL/p/10449269.html</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1450188">从ncbi下载sra数据的几种种方式</a></li>
 </ul>
 
+        </div>
+        
+        <div class="level is-size-7 is-uppercase">
+            <div class="level-start">
+                <div class="level-item">
+                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
+                    <a class="has-link-grey -link" href="/tags/%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80/" rel="tag"> "生信基础"</a>
+                </div>
+            </div>
         </div>
         
         
@@ -256,16 +232,16 @@
     <div class="level post-navigation is-flex-wrap is-mobile">
         
         <div class="level-start">
-            <a class="level level-item has-link-grey  article-nav-prev" href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/">
+            <a class="level level-item has-link-grey  article-nav-prev" href="/posts/d209cfd9.html">
                 <i class="level-item fas fa-chevron-left"></i>
-                <span class="level-item">【爬虫项目(二)】Selenium框架爬取淘宝商品信息</span>
+                <span class="level-item">【个人 【个人博客搭建2】配置和优化</span>
             </a>
         </div>
         
         
         <div class="level-end">
-            <a class="level level-item has-link-grey  article-nav-next" href="/2020/02/03/hello-world/">
-                <span class="level-item">Hello World</span>
+            <a class="level level-item has-link-grey  article-nav-next" href="/posts/d70a2165.html">
+                <span class="level-item">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</span>
                 <i class="level-item fas fa-chevron-right"></i>
             </a>
         </div>
@@ -319,7 +295,7 @@
                     </p>
                     <a href="/archives">
                         <p class="title has-text-weight-normal">
-                            7
+                            8
                         </p>
                     </a>
                 </div>
@@ -343,7 +319,7 @@
                     </p>
                     <a href="/tags">
                         <p class="title has-text-weight-normal">
-                            1
+                            2
                         </p>
                     </a>
                 </div>
@@ -445,7 +421,7 @@
         <h3 class="menu-label">
             标签云
         </h3>
-        <a href="/tags/%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80/" style="font-size: 10px;"> "生信基础"</a>
+        <a href="/tags/%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80/" style="font-size: 10px;"> "生信基础"</a> <a href="/tags/%E5%8D%9A%E5%AE%A2/" style="font-size: 10px;">博客</a>
     </div>
 </div>
     
@@ -460,7 +436,26 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%801%E3%80%91%E6%A0%B9%E6%8D%AESRA%E5%8F%B7%E6%89%B9%E9%87%8F%E4%B8%8B%E8%BD%BDfastq%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95/" class="media-left">
+            <a href="/posts/d209cfd9.html" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【个人 【个人博客搭建2】配置和优化">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-07T09:33:58.000Z">2020-02-07</time></div>
+                    <a href="/posts/d209cfd9.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【个人 【个人博客搭建2】配置和优化</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/9caf8683.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【生信基础1】根据SRA号批量下载fastq文件的一种实现方法">
                 </p>
@@ -469,7 +464,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T13:54:03.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%801%E3%80%91%E6%A0%B9%E6%8D%AESRA%E5%8F%B7%E6%89%B9%E9%87%8F%E4%B8%8B%E8%BD%BDfastq%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【生信基础1】根据SRA号批量下载fastq文件的一种实现方法</a>
+                    <a href="/posts/9caf8683.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【生信基础1】根据SRA号批量下载fastq文件的一种实现方法</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -479,7 +474,7 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="media-left">
+            <a href="/posts/d70a2165.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法">
                 </p>
@@ -488,7 +483,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:19:42.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
+                    <a href="/posts/d70a2165.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -498,7 +493,7 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="media-left">
+            <a href="/posts/e828c5fa.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记">
                 </p>
@@ -507,7 +502,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:17:54.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
+                    <a href="/posts/e828c5fa.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -517,7 +512,7 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="media-left">
+            <a href="/posts/2b1e5dc6.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操">
                 </p>
@@ -526,26 +521,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
-                    <p class="is-size-7 is-uppercase">
-                        
-                    </p>
-                </div>
-            </div>
-        </article>
-        
-        <article class="media">
-            
-            <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="media-left">
-                <p class="image is-64x64">
-                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【爬虫项目(二)】Selenium框架爬取淘宝商品信息">
-                </p>
-            </a>
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T07:44:27.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【爬虫项目(二)】Selenium框架爬取淘宝商品信息</a>
+                    <a href="/posts/2b1e5dc6.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -570,7 +546,7 @@
                     <span class="level-item">二月 2020</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">7</span>
+                    <span class="level-item tag">8</span>
                 </span>
             </a>
         </li>
@@ -591,6 +567,13 @@
                 <div class="control">
                     <a class="tags has-addons" href="/tags/%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%80/">
                         <span class="tag"> &#34;生信基础&#34;</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/%E5%8D%9A%E5%AE%A2/">
+                        <span class="tag">博客</span>
                         <span class="tag is-grey">1</span>
                     </a>
                 </div>
@@ -619,7 +602,26 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%801%E3%80%91%E6%A0%B9%E6%8D%AESRA%E5%8F%B7%E6%89%B9%E9%87%8F%E4%B8%8B%E8%BD%BDfastq%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95/" class="media-left">
+            <a href="/posts/d209cfd9.html" class="media-left">
+                <p class="image is-64x64">
+                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【个人 【个人博客搭建2】配置和优化">
+                </p>
+            </a>
+            
+            <div class="media-content">
+                <div class="content">
+                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-07T09:33:58.000Z">2020-02-07</time></div>
+                    <a href="/posts/d209cfd9.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【个人 【个人博客搭建2】配置和优化</a>
+                    <p class="is-size-7 is-uppercase">
+                        
+                    </p>
+                </div>
+            </div>
+        </article>
+        
+        <article class="media">
+            
+            <a href="/posts/9caf8683.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【生信基础1】根据SRA号批量下载fastq文件的一种实现方法">
                 </p>
@@ -628,7 +630,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T13:54:03.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E7%94%9F%E4%BF%A1%E5%9F%BA%E7%A1%801%E3%80%91%E6%A0%B9%E6%8D%AESRA%E5%8F%B7%E6%89%B9%E9%87%8F%E4%B8%8B%E8%BD%BDfastq%E6%96%87%E4%BB%B6%E7%9A%84%E4%B8%80%E7%A7%8D%E5%AE%9E%E7%8E%B0%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【生信基础1】根据SRA号批量下载fastq文件的一种实现方法</a>
+                    <a href="/posts/9caf8683.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【生信基础1】根据SRA号批量下载fastq文件的一种实现方法</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -638,7 +640,7 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="media-left">
+            <a href="/posts/d70a2165.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法">
                 </p>
@@ -647,7 +649,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:19:42.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%8415%E3%80%91%E6%97%A7%E7%89%88SingleR-1-0-0%E7%9A%84%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%96%B9%E6%B3%95/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
+                    <a href="/posts/d70a2165.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组15】旧版SingleR 1.0.0的基本使用方法</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -657,7 +659,7 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="media-left">
+            <a href="/posts/e828c5fa.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记">
                 </p>
@@ -666,7 +668,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:17:54.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%848%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E5%8C%85%E7%9A%84%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
+                    <a href="/posts/e828c5fa.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组8】新版SingleR1.1.1细胞注释包的学习笔记</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -676,7 +678,7 @@
         
         <article class="media">
             
-            <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="media-left">
+            <a href="/posts/2b1e5dc6.html" class="media-left">
                 <p class="image is-64x64">
                     <img class="thumbnail" src="/images/thumbnail.svg" alt="【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操">
                 </p>
@@ -685,26 +687,7 @@
             <div class="media-content">
                 <div class="content">
                     <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T08:09:19.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E5%8D%95%E7%BB%86%E8%83%9E%E8%BD%AC%E5%BD%95%E7%BB%849%E3%80%91%E6%96%B0%E7%89%88SingleR1-1-1%E7%BB%86%E8%83%9E%E6%B3%A8%E9%87%8A%E7%9A%84%E4%BB%A3%E7%A0%81%E5%AE%9E%E6%93%8D/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
-                    <p class="is-size-7 is-uppercase">
-                        
-                    </p>
-                </div>
-            </div>
-        </article>
-        
-        <article class="media">
-            
-            <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="media-left">
-                <p class="image is-64x64">
-                    <img class="thumbnail" src="/images/thumbnail.svg" alt="【爬虫项目(二)】Selenium框架爬取淘宝商品信息">
-                </p>
-            </a>
-            
-            <div class="media-content">
-                <div class="content">
-                    <div><time class="has-text-grey is-size-7 is-uppercase" datetime="2020-02-06T07:44:27.000Z">2020-02-06</time></div>
-                    <a href="/2020/02/06/%E3%80%90%E7%88%AC%E8%99%AB%E9%A1%B9%E7%9B%AE2%E3%80%91Selenium%E6%A1%86%E6%9E%B6%E7%88%AC%E5%8F%96%E6%B7%98%E5%AE%9D%E5%95%86%E5%93%81%E4%BF%A1%E6%81%AF/" class="title has-link-black-ter is-size-6 has-text-weight-normal">【爬虫项目(二)】Selenium框架爬取淘宝商品信息</a>
+                    <a href="/posts/2b1e5dc6.html" class="title has-link-black-ter is-size-6 has-text-weight-normal">【单细胞转录组9】新版SingleR1.1.1细胞注释的代码实操</a>
                     <p class="is-size-7 is-uppercase">
                         
                     </p>
@@ -729,7 +712,7 @@
                     <span class="level-item">二月 2020</span>
                 </span>
                 <span class="level-end">
-                    <span class="level-item tag">7</span>
+                    <span class="level-item tag">8</span>
                 </span>
             </a>
         </li>
@@ -754,6 +737,13 @@
                     </a>
                 </div>
                 
+                <div class="control">
+                    <a class="tags has-addons" href="/tags/%E5%8D%9A%E5%AE%A2/">
+                        <span class="tag">博客</span>
+                        <span class="tag is-grey">1</span>
+                    </a>
+                </div>
+                
             </div>
         </div>
     </div>
@@ -771,7 +761,7 @@
             <div class="level-start has-text-centered-mobile">
                 <a class="footer-logo is-block has-mb-6" href="/">
                 
-                    <img src="/images/logo.svg" alt="&#39;个人博客搭建_1：Github+Hexo+Icarus主题选择&#39;" height="28">
+                    <img src="/images/logo.svg" alt="【生信基础1】根据SRA号批量下载fastq文件的一种实现方法" height="28">
                 
                 </a>
                 <p class="is-size-7">
