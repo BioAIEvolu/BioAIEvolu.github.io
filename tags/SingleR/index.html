@@ -7,21 +7,19 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 
-<title>【个人博客搭建2】配置和优化 - Robin唔系肉饼</title>
+<title>标签: SingleR - Robin唔系肉饼</title>
 
 
-    <meta name="description" content="一、个性化域名（略） 二、优化分享链接主题默认的文章链接配置是： 1premalink: :year&#x2F;:month&#x2F;:day&#x2F;:title 生成的链接地址很长,不利于分享  首先再在目录下执行下面的命令：1npm install hexo-abbrlink --save 将站点配置文件_config.yml的permalink的值修改为：1permalink: pos">
-<meta property="og:type" content="article">
-<meta property="og:title" content="【个人博客搭建2】配置和优化">
-<meta property="og:url" content="http://yoursite.com/posts/d209cfd9.html">
+    <meta name="description" content="广佛候鸟，湾区青年">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Robin唔系肉饼">
+<meta property="og:url" content="http://yoursite.com/tags/SingleR/index.html">
 <meta property="og:site_name" content="Robin唔系肉饼">
-<meta property="og:description" content="一、个性化域名（略） 二、优化分享链接主题默认的文章链接配置是： 1premalink: :year&#x2F;:month&#x2F;:day&#x2F;:title 生成的链接地址很长,不利于分享  首先再在目录下执行下面的命令：1npm install hexo-abbrlink --save 将站点配置文件_config.yml的permalink的值修改为：1permalink: pos">
+<meta property="og:description" content="广佛候鸟，湾区青年">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://yoursite.com/images/og_image.png">
-<meta property="article:published_time" content="2020-02-07T09:33:58.000Z">
-<meta property="article:modified_time" content="2020-02-07T11:41:55.084Z">
 <meta property="article:author" content="Robin Hood">
-<meta property="article:tag" content="博客">
+<meta property="article:tag" content="学习与分享">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://yoursite.com/images/og_image.png">
 
@@ -81,7 +79,7 @@
         <div class="navbar-brand is-flex-center">
             <a class="navbar-item navbar-logo" href="/">
             
-                <img src="/images/logo.svg" alt="【个人博客搭建2】配置和优化" height="28">
+                <img src="/images/logo.svg" alt="Robin唔系肉饼" height="28">
             
             </a>
         </div>
@@ -130,20 +128,31 @@
     <section class="section">
         <div class="container">
             <div class="columns">
-                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main">
+                <div class="column is-8-tablet is-8-desktop is-6-widescreen has-order-2 column-main"><div class="card">
+    <div class="card-content">
+        <nav class="breadcrumb" aria-label="breadcrumbs">
+        <ul>
+            <li><a href="/tags">标签</a></li>
+            <li class="is-active"><a href="#" aria-current="page">SingleR</a></li>
+        </ul>
+        </nav>
+    </div>
+</div>
+
+    
 <div class="card">
     
     <div class="card-content article ">
         
         <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
             <div class="level-left">
-                <time class="level-item has-text-grey" datetime="2020-02-07T09:33:58.000Z">2020-02-07</time>
+                <time class="level-item has-text-grey" datetime="2020-02-07T12:01:06.000Z">2020-02-07</time>
                 
                 
                 <span class="level-item has-text-grey">
                     
                     
-                    3 分钟 读完 (大约 492 个字)
+                    6 分钟 读完 (大约 968 个字)
                 </span>
                 
                 
@@ -152,52 +161,69 @@
         
         <h1 class="title is-size-3 is-size-4-mobile has-text-weight-normal">
             
-                【个人博客搭建2】配置和优化
+                <a class="has-link-black-ter" href="/posts/afeb9ab4.html">【单细胞测序17】SingleR注释库本地化（仍然在探索中）</a>
             
         </h1>
         <div class="content">
-            <h2 id="一、个性化域名"><a href="#一、个性化域名" class="headerlink" title="一、个性化域名"></a>一、个性化域名</h2><p>（略）</p>
-<h2 id="二、优化分享链接"><a href="#二、优化分享链接" class="headerlink" title="二、优化分享链接"></a>二、优化分享链接</h2><p>主题默认的文章链接配置是：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">premalink: :year&#x2F;:month&#x2F;:day&#x2F;:title</span><br></pre></td></tr></table></figure>
-<p>生成的链接地址很长,不利于分享</p>
+            <h2 id="一、目的"><a href="#一、目的" class="headerlink" title="一、目的"></a>一、目的</h2><p>构造非人类和小鼠的细胞注释库，用于trainSingleR()和classifySingleR()两个函数</p>
+<h2 id="二、解决方法"><a href="#二、解决方法" class="headerlink" title="二、解决方法"></a>二、解决方法</h2><ul>
+<li><input disabled="" type="checkbox"> <p>SingleR构建本地注释库</p>
 <ul>
-<li>首先再在目录下执行下面的命令：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-abbrlink --save</span><br></pre></td></tr></table></figure></li>
-<li>将站点配置文件_config.yml的permalink的值修改为：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">permalink: posts&#x2F;:abbrlink.html  # 此处可以自己设置，也可以直接使用 :&#x2F;abbrlink</span><br></pre></td></tr></table></figure></li>
-<li>在站点配置文件_config.yml下添加如下配置：<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">abbrlink:</span><br><span class="line">    alg: crc16   #算法： crc16(default) and crc32</span><br><span class="line">    rep: hex     #进制： dec(default) and hex: dec #输出进制：十进制和十六进制，默认为10进制。丨dec为十进制，hex为十六进制</span><br></pre></td></tr></table></figure>
+<li><input checked="" disabled="" type="checkbox"> 问作者（在gitHub上问了一段时间了，估计还得等半个月）</li>
+<li><input checked="" disabled="" type="checkbox"> 查资料（查过简书、百度、谷歌、微信公众号，没有满意的）</li>
+<li><input disabled="" type="checkbox"> 看文献（说实话，文献我还真不知道该怎么搜,只能积累一些相关物种的文献）</li>
+</ul>
+</li>
+<li><input disabled="" type="checkbox"> <p>查看SingleR数据结构格式，尝试能否自己构建一个类似的数据结构</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&gt; sceM    </span><br><span class="line">class: SingleCellExperiment </span><br><span class="line">dim: 19059 2126 </span><br><span class="line">metadata(0):</span><br><span class="line">assays(1): counts</span><br><span class="line">rownames(19059): A1BG-AS1__chr19 A1BG__chr19 ... ZZEF1__chr17 ZZZ3__chr1</span><br><span class="line">rowData names(2): symbol chr</span><br><span class="line">colnames(2126): D28-1_1 D28-1_2 ... D30-8_93 D30-8_94</span><br><span class="line">colData names(3): label donor plate</span><br><span class="line">reducedDimNames(0):</span><br><span class="line">spikeNames(0):</span><br><span class="line">altExpNames(1): ERCC</span><br></pre></td></tr></table></figure>
 
 </li>
 </ul>
-<h2 id="三、添加Gitalk评论模块"><a href="#三、添加Gitalk评论模块" class="headerlink" title="三、添加Gitalk评论模块"></a>三、添加Gitalk评论模块</h2><ol>
-<li><p>注册 OAuth Application</p>
+<p>看着像一个S4对象</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&gt; class(sceM)</span><br><span class="line">[1] &quot;SingleCellExperiment&quot;</span><br><span class="line">attr(,&quot;package&quot;)</span><br><span class="line">[1] &quot;SingleCellExperiment&quot;</span><br></pre></td></tr></table></figure>
+<p>可以看到这个对象的层级结构比较深：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">View(sceM@assays@data@listData$count)</span><br></pre></td></tr></table></figure>
 <ul>
-<li>点击注册 <a href="https://yq.aliyun.com/go/articleRenderRedirect?spm=a2c4e.11153940.0.0.37d9d9b9zkFoAR&url=https%3A%2F%2Fgithub.com%2Fsettings%2Fapplications%2Fnew">OAuth Application</a>进行注册</li>
-<li>Application name：应用名称，自己随意起名。</li>
-<li>Homepage URL：博客主页地址，如果有域名，此处填写域名，无域名，填写你的默认github地址：如<code>https://username.github.io</code>。</li>
-<li>Application description：应用描述，可选，可以写也可以不写。</li>
-<li>Authorization callback URL：授权后返回的地址，需要与Homepage URL一致。</li>
-<li>点击 Register application（注册）会出现 Client ID/Secret，接下来就是将信息填入配置文件中。</li>
+<li><p>猜测这里面其实就是一个gene expression count矩阵</p>
+</li>
+<li><p>关键是这个<code>SingleCellExperiment</code>对象该如何构建？</p>
+<h2 id="三、继续百度、谷歌一下SingleCellExperiment对象"><a href="#三、继续百度、谷歌一下SingleCellExperiment对象" class="headerlink" title="三、继续百度、谷歌一下SingleCellExperiment对象"></a>三、继续百度、谷歌一下SingleCellExperiment对象</h2></li>
+<li><p>SingleCellExperiment对象是定义用于存储单细胞实验数据的S4类。这包括存储和检索添加信息，每个细胞的降维坐标和大小因子以及基因和文库的常规元数据的专用方法。</p>
+</li>
+<li><p>还找到一篇简书<a href="https://www.jianshu.com/p/aa0a4306b067">单细胞交响乐1-常用的数据结构SingleCellExperiment</a><br>借用里面一张图：<img src="https://upload-images.jianshu.io/upload_images/9376801-1c4f45bcd707dcfb.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1200/format/webp" alt=""><br>发现这个与SinglerR的SingleCellExperiment对象结构还是有很大区别的</p>
+</li>
+<li><p>然后在google中通过高级搜索，同时满足“SingleR”和“SingleCellExperiment”的关键词<br>搜到一篇比较相关的，大概是讲述用bulk RNA-seq的数据进行单细胞注释 </p>
+<blockquote>
+<p><a href="https://www.biostars.org/p/392678/">Question: How can I identify cells from Single cell experiment (SCE) using bulk RNA experiment (RNAseq) genes signatures?</a></p>
+</blockquote>
+<ul>
+<li><p>就是简单说了一些关于根据的DESeq2计数矩阵相关的</p>
+</li>
+<li><p>一种解决方案可能是将DE本体基因中的log2FC与单细胞数据中的相应log2FC相关联。这应该同时考虑大小和值的符号。</p>
+<p>但是似乎没有解决我的问题:(</p>
+</li>
 </ul>
 </li>
-<li><p>配置 _config.yml 文件</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"># the Gitalk config，default disabled</span><br><span class="line"># Gitalk 评论模块的配置，默认为不激活</span><br><span class="line">gitalk:</span><br><span class="line">  enable: true    # true即开启评论模块</span><br><span class="line">  owner: BioAIEvolu  # 填写你的 github 账户名即可</span><br><span class="line">  repo: BioAIEvolu-gitalks   # 新建一个仓库或者使用博客托管的仓库也可</span><br><span class="line">  oauth:</span><br><span class="line">    clientId:  #填写你的clientId</span><br><span class="line">    clientSecret:   #填写你的clientSecret</span><br><span class="line">  admin: BioAIEvolu  #填写你的 github 账户名即可</span><br></pre></td></tr></table></figure>
+<li><p>然后通过百度用同样的方法找到了这个：<a href="https://www.biostars.org/p/416600/"><br>Question: How to use SingleR for annotating single-cell transcriptomics dataset with our own custom made bulk RNA data?</a></p>
+</li>
+</ul>
+<pre><code>**提问者问**：It looks like its fairly easy to use pre-existing Bulk RNA signatures from the built-in references, but when the bulk RNA data is generated by ourselves, is this possible?
 
-
+**作者**：Sure, you just have to feed it the counts (ref argument) and a vector of labels (labels argument) corresponding to each sample. Reading ?SingleR should explain pretty clearly.</code></pre><ul>
+<li>于是我？SingleR()看到这么一句话<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ref	:</span><br><span class="line">A numeric matrix of expression values where rows are genes and columns are reference samples (individual cells or bulk samples). Each row should be named with the gene name. In general, the expression values are expected to be log-transformed, see Details.</span><br><span class="line"></span><br><span class="line">Alternatively, a SummarizedExperiment object containing such a matrix.</span><br><span class="line"></span><br><span class="line">Alternatively, a list or List of SummarizedExperiment objects or numeric matrices containing multiple references, in which case the row names are expected to be the same across all objects.</span><br></pre></td></tr></table></figure>
 
 </li>
-</ol>
-<ol start="4">
-<li>进行部署步骤即可，第一次查看效果需要登录github账号，关联授权后，就可以使用评论系统了。</li>
-</ol>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">labels	:</span><br><span class="line">A character vector or factor of known labels for all samples in ref.</span><br></pre></td></tr></table></figure>
+<ul>
+<li>所以发现自己貌似兜了一个大圈，解决问题的思路，应该先查一下相关函数的用法 T_T</li>
+</ul>
+<h2 id="四、拿数据做测试"><a href="#四、拿数据做测试" class="headerlink" title="四、拿数据做测试"></a>四、拿数据做测试</h2><p>明天再搞。。。</p>
+<h4 id="题外话"><a href="#题外话" class="headerlink" title="题外话"></a>题外话</h4><ul>
+<li>还有另外一个单细胞注释的工具：<a href="https://www.ncbi.nlm.nih.gov/pubmed/31028376">scMatch: a single-cell gene expression profile annotation tool using reference datasets.</a>，其准确性可与另一个最新的细胞批注工具（SingleR）相提并论，但是它更快并且可以处理更大的参考数据集。</li>
+<li>无意中又找到一个资源整理的github网址，之前忘记收藏了，marker一下：<a href="https://github.com/seandavi/awesome-single-cell">https://github.com/seandavi/awesome-single-cell</a></li>
+</ul>
 
-        </div>
-        
-        <div class="level is-size-7 is-uppercase">
-            <div class="level-start">
-                <div class="level-item">
-                    <span class="is-size-6 has-text-grey has-mr-7">#</span>
-                    <a class="has-link-grey -link" href="/tags/%E5%8D%9A%E5%AE%A2/" rel="tag">博客</a>
-                </div>
-            </div>
         </div>
         
         
@@ -207,62 +233,9 @@
 
 
 
-<div class="card">
-    <div class="card-content">
-        <h3 class="menu-label has-text-centered">喜欢这篇文章？打赏一下作者吧</h3>
-        <div class="buttons is-centered">
-            
-                
-<div class="notification is-danger">
-    You forgot to set the <code>qrcode</code> for Alipay. Please set it in <code>_config.yml</code>.
-</div>
-
-                
-                
-<div class="notification is-danger">
-    You forgot to set the <code>qrcode</code> for Wechat. Please set it in <code>_config.yml</code>.
-</div>
-
-                
-                <!-- Visit https://www.paypal.com/donate/buttons/ to get your donate button -->
-
-<div class="notification is-danger">
-    You forgot to set the <code>business</code> and <code>currency_code</code> for Paypal. Please set it in <code>_config.yml</code>.
-</div>
-
-                
-                
-<div class="notification is-danger">
-    You forgot to set the <code>url</code> Patreon. Please set it in <code>_config.yml</code>.
-</div>
-
-                
-        </div>
-    </div>
-</div>
 
 
 
-<div class="card card-transparent">
-    <div class="level post-navigation is-flex-wrap is-mobile">
-        
-        <div class="level-start">
-            <a class="level level-item has-link-grey  article-nav-prev" href="/posts/afeb9ab4.html">
-                <i class="level-item fas fa-chevron-left"></i>
-                <span class="level-item">【单细胞测序17】SingleR注释库本地化（仍然在探索中）</span>
-            </a>
-        </div>
-        
-        
-        <div class="level-end">
-            <a class="level level-item has-link-grey  article-nav-next" href="/posts/9caf8683.html">
-                <span class="level-item">【生信基础1】根据SRA号批量下载fastq文件的一种实现方法</span>
-                <i class="level-item fas fa-chevron-right"></i>
-            </a>
-        </div>
-        
-    </div>
-</div>
 
 
 </div>
@@ -790,7 +763,7 @@
             <div class="level-start has-text-centered-mobile">
                 <a class="footer-logo is-block has-mb-6" href="/">
                 
-                    <img src="/images/logo.svg" alt="【个人博客搭建2】配置和优化" height="28">
+                    <img src="/images/logo.svg" alt="Robin唔系肉饼" height="28">
                 
                 </a>
                 <p class="is-size-7">
